@@ -30,10 +30,8 @@ export const calculateThumbnail: (img: Image) => Promise<OperationOutput> = (
       .then((base64) => {
         if (base64)
           resolve({
-            memo: {
-              image: img,
-              thumbnail: base64,
-            },
+            image: img,
+            thumbnail: base64,
           });
       });
   });

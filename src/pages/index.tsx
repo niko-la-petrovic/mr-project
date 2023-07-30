@@ -10,8 +10,13 @@ import {
   ImageFlowNode,
   ImageFlowNodeTypes,
   NodeEdgePair,
-  OperationPair,
+  OperationInputPair,
 } from "@/types/domain";
+import {
+  InvertOperation,
+  PicsumSourceOperation,
+  operations,
+} from "@/services/imageOps";
 import ReactFlow, {
   Background,
   Connection,
@@ -48,9 +53,7 @@ const initialNodes: ImageFlowNode[] = [
     data: {
       label: "Image Source",
       content: {
-        operation: () => {
-          return Jimp.read("https://picsum.photos/200");
-        },
+        operation: PicsumSourceOperation,
         showPreview: true,
       },
     },
@@ -71,12 +74,29 @@ const initialNodes: ImageFlowNode[] = [
       },
     },
   },
+  {
+    id: "3",
+    type: "imageFlowNode",
+    position: { x: 400, y: 400 },
+    data: {
+      label: "3",
+      content: {
+        showPreview: true,
+        operation: InvertOperation,
+      },
+    },
+  },
 ];
 const initialEdges: ImageFlowEdge[] = [
   {
     id: "e1-2",
     source: initialNodes[0].id,
     target: initialNodes[1].id,
+  },
+  {
+    id: "e2-3",
+    source: initialNodes[1].id,
+    target: initialNodes[2].id,
   },
 ];
 
@@ -92,7 +112,7 @@ export default function Home() {
 
   // TODO document how the passed nodes must be mutable copies
   const performOperation = useCallback(
-    (...pairsToUpdate: OperationPair[]) => {
+    (...pairsToUpdate: OperationInputPair[]) => {
       if (pairsToUpdate.length == 0) return;
 
       pairsToUpdate.forEach((pair) => {
@@ -117,10 +137,10 @@ export default function Home() {
                   ...node,
                   data: {
                     ...node.data,
-                    content: { ...node.data.content, memo: out.memo },
+                    content: { ...node.data.content, memo: out },
                   },
                 };
-                setNodes((prev) => setNodeMemoById(prev, nodeId, out.memo));
+                setNodes((prev) => setNodeMemoById(prev, nodeId, out));
 
                 const dependentEdges = edges.filter((e) => e.source === nodeId);
                 const dependentNodes = dependentEdges
@@ -132,9 +152,9 @@ export default function Home() {
                       node: foundNode,
                       edge: e,
                       parent: nodeFuture,
-                    } as Partial<OperationPair>;
+                    } as Partial<OperationInputPair>;
                   })
-                  .filter((n): n is OperationPair => n.node !== undefined);
+                  .filter((n): n is OperationInputPair => n.node !== undefined);
                 performOperation(...dependentNodes);
               });
           });

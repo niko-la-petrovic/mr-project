@@ -21,9 +21,11 @@ export type ImageFlowEdgeData<
 > = NonPreviewable<MemoizedImageFunction<TImage, TImageMemo>>;
 export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
 
+export type OperationReturnType<TImage = Image> = Promise<TImage | undefined>;
+
 // TODO make this many images
 export interface ImageFunction<TImage = Image> {
-  (...image: TImage[]): Promise<TImage | undefined>;
+  (...image: TImage[]): OperationReturnType<TImage>;
 }
 
 export interface Previewable {
@@ -64,8 +66,6 @@ export interface HasParent {
   parent?: ImageFlowNode;
 }
 
-export type OperationPair = NodeEdgePair & HasParent;
+export type OperationInputPair = NodeEdgePair & HasParent;
 
-export type OperationOutput = {
-  memo: ImageMemo;
-};
+export type OperationOutput = ImageMemo;
