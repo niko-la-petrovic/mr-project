@@ -5,7 +5,10 @@ import { ReactNode } from "react";
 
 // TODO reduce this to just the types we need
 export interface Image extends Jimp {}
-export type ImageMemo = string;
+export type ImageMemo = {
+  image: Image;
+  thumbnail: string;
+};
 
 export type GraphNodeData<TContent = undefined> = {
   label: string;
@@ -20,11 +23,11 @@ export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
 
 // TODO make this many images
 export interface ImageFunction<TImage = Image> {
-  (...image: TImage[]): Promise<TImage>;
+  (...image: TImage[]): Promise<TImage | undefined>;
 }
 
 export interface Previewable {
-  showPreview: boolean;
+  showPreview?: boolean;
 }
 
 export type NonPreviewable<T> = Omit<T, keyof Previewable>;
@@ -62,3 +65,7 @@ export interface HasParent {
 }
 
 export type OperationPair = NodeEdgePair & HasParent;
+
+export type OperationOutput = {
+  memo: ImageMemo;
+};

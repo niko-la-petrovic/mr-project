@@ -11,7 +11,7 @@ import { useCallback, useMemo } from "react";
 
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
-import { nodeTransform } from "@/services/nodeOps";
+import { nodeTransformById } from "@/services/nodeOps";
 
 // TODO make into container component
 
@@ -23,13 +23,17 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   const updateNodeLabel = useCallback(
     (label: string) =>
       setNodes((nodes) =>
-        nodeTransform(nodes, id, (node) => ({
+        nodeTransformById(nodes, id, (node) => ({
           ...node,
           data: { ...node.data, label },
         }))
       ),
     [id, setNodes]
   );
+
+  const content = data.content;
+  const showPreview = content?.showPreview;
+  const memo = content?.memo;
 
   return (
     <>
@@ -43,11 +47,11 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           value={data.label}
           onChange={(value) => updateNodeLabel(value)}
         />
-        {data.content?.memo ? (
+        {showPreview && memo ? (
           <div className="s-64 relative">
             <Image
               className="absolute top-0 left-0 w-full h-full object-contain"
-              src={data.content?.memo}
+              src={memo.thumbnail}
               alt=""
               layout="fill"
             />

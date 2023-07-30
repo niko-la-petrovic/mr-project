@@ -1,6 +1,9 @@
-import { ImageFlowNode } from "@/types/domain";
+import { Image, ImageMemo, OperationOutput } from "@/types/domain";
 
-export const nodeTransform = (
+import { ImageFlowNode } from "@/types/domain";
+import Jimp from "jimp";
+
+export const nodeTransformById = (
   nodes: ImageFlowNode[],
   id: string,
   transformation: (node: ImageFlowNode) => ImageFlowNode
@@ -13,3 +16,47 @@ export const nodeTransform = (
   });
 };
 
+export const calculateThumbnail: (img: Image) => Promise<OperationOutput> = (
+  img: Image
+) => {
+  return new Promise((resolve, reject) => {
+    img
+      .resize(256, 256)
+      .quality(60)
+      .getBase64Async(Jimp.MIME_JPEG)
+      .catch((err) => {
+        reject(err);
+      })
+      .then((base64) => {
+        if (base64)
+          resolve({
+            memo: {
+              image: img,
+              thumbnail: base64,
+            },
+          });
+      });
+  });
+};
+
+export function setNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
+  return {
+    ...node,
+    data: {
+      ...node.data,
+      content: {
+        ...node.data.content,
+        showPreview: true,
+        memo,
+      },
+    },
+  };
+}
+
+export function setNodeMemoById(
+  nodes: ImageFlowNode[],
+  nodeId: string,
+  memo: ImageMemo
+) {
+  return nodeTransformById(nodes, nodeId, (node) => setNodeMemo(node, memo));
+}

@@ -21,6 +21,12 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from "reactflow";
+import {
+  calculateThumbnail,
+  nodeTransformById,
+  setNodeMemo,
+  setNodeMemoById,
+} from "@/services/nodeOps";
 import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
@@ -53,7 +59,17 @@ const initialNodes: ImageFlowNode[] = [
     id: "2",
     type: "imageFlowNode",
     position: { x: 0, y: 400 },
-    data: { label: "2" },
+    data: {
+      label: "2",
+      content: {
+        showPreview: true,
+        operation: (...images: Image[]) => {
+          if (images.length !== 1) return Promise.resolve(undefined);
+
+          return Promise.resolve(images[0].gaussian(3));
+        },
+      },
+    },
   },
 ];
 const initialEdges: ImageFlowEdge[] = [
@@ -61,11 +77,6 @@ const initialEdges: ImageFlowEdge[] = [
     id: "e1-2",
     source: initialNodes[0].id,
     target: initialNodes[1].id,
-    data: {
-      operation: (image) => {
-        return Promise.resolve(image.gaussian(3));
-      },
-    },
   },
 ];
 
@@ -77,70 +88,59 @@ export default function Home() {
   const [edges, setEdges, onEdgesChange] =
     useEdgesState<ImageFlowEdgeData>(initialEdges);
 
-  const prepareMemo = useCallback((img: Image) => {
-    return img.resize(256, 256).quality(60).getBase64Async(Jimp.MIME_JPEG);
-  }, []);
-  const updateNode = useCallback(
-    // create dep on setNodes
-    (nodes: ImageFlowNode[], nodeId: string, memo: string) => {
-      // TODO use nodeTransorm
-      return nodes.map((node, _) => {
-        if (node.id === nodeId) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              content: {
-                ...node.data.content,
-                showPreview: true,
-                memo,
-              },
-            },
-          };
-        }
-        return node;
-      });
-    },
-    []
-  );
-
   // TODO use onnx runtime
 
+  // TODO document how the passed nodes must be mutable copies
   const performOperation = useCallback(
-    (...nodesToUpdate: OperationPair[]) => {
-      if (nodesToUpdate.length == 0) return;
+    (...pairsToUpdate: OperationPair[]) => {
+      if (pairsToUpdate.length == 0) return;
 
-      nodesToUpdate.forEach((pair) => {
+      pairsToUpdate.forEach((pair) => {
         const node = pair.node;
         const nodeId = node.id;
-        const edge = pair.edge;
+
+        // TODO use edge operation
+        const parentEdge = pair.edge;
+
+        const parent = pair.parent;
+        const hasParent = parent !== undefined;
+        const parentImage = parent?.data.content?.memo?.image;
+        const nodeOperationArgs = hasParent && parentImage ? [parentImage] : [];
 
         const operation = node.data.content?.operation;
         operation &&
           !node.data.content?.memo &&
-          operation().then((img) => {
-            prepareMemo(img).then((base64) => {
-              setNodes((prev) => updateNode(prev, nodeId, base64));
+          operation(...nodeOperationArgs).then((img) => {
+            img &&
+              calculateThumbnail(img).then((out) => {
+                const nodeFuture: ImageFlowNode = {
+                  ...node,
+                  data: {
+                    ...node.data,
+                    content: { ...node.data.content, memo: out.memo },
+                  },
+                };
+                setNodes((prev) => setNodeMemoById(prev, nodeId, out.memo));
 
-              const dependentEdges = edges.filter((e) => e.source === nodeId);
-              const dependentNodes = dependentEdges
-                .map((e) => {
-                  const foundNode = nodes.find(
-                    (n): n is ImageFlowNode => n.id === e.target
-                  );
-                  return {
-                    node: foundNode,
-                    edge: e,
-                    parent: node,
-                  } as Partial<OperationPair>;
-                })
-                .filter((n): n is OperationPair => n.node !== undefined);
-              performOperation(...dependentNodes);
-            });
+                const dependentEdges = edges.filter((e) => e.source === nodeId);
+                const dependentNodes = dependentEdges
+                  .map((e) => {
+                    const foundNode = nodes.find(
+                      (n): n is ImageFlowNode => n.id === e.target
+                    );
+                    return {
+                      node: foundNode,
+                      edge: e,
+                      parent: nodeFuture,
+                    } as Partial<OperationPair>;
+                  })
+                  .filter((n): n is OperationPair => n.node !== undefined);
+                performOperation(...dependentNodes);
+              });
           });
       });
     },
-    [edges, nodes, prepareMemo, setNodes, updateNode]
+    [edges, nodes, setNodes]
   );
 
   useEffect(() => {
@@ -148,6 +148,8 @@ export default function Home() {
 
     const startingNodeIndex = 0;
     const node = nodes[startingNodeIndex];
+    if (node.data.content?.memo) return;
+
     performOperation({ node });
   }, [nodes, performOperation]);
 
