@@ -1,7 +1,7 @@
 import { Handle, Position } from "reactflow";
 
 import Image from "next/image";
-import { ImageFlowNodeProps } from "@/pages";
+import { ImageFlowNodeProps } from "@/types/domain";
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   return (
@@ -12,7 +12,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           {id}
         </span>
         <span className="text-xs font-semibold">{data.label}</span>
-        {data.content?.memo && (
+        {data.content?.memo ? (
           <div className="s-64 relative">
             <Image
               className="absolute top-0 left-0 w-full h-full object-contain"
@@ -20,6 +20,10 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
               alt=""
               layout="fill"
             />
+          </div>
+        ) : (
+          <div className="">
+            <span>No flow yet</span>
           </div>
         )}
       </div>

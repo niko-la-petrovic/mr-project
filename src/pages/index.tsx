@@ -4,24 +4,21 @@ import "reactflow/dist/style.css";
 
 import {
   GraphEdge,
-  GraphNodeData,
   Image,
-  ImageMemo,
-  MemoizedImageFunction,
+  ImageFlowData,
+  ImageFlowNode,
+  ImageFlowNodeTypes,
 } from "@/types/domain";
 import ReactFlow, {
   Background,
   Connection,
   Controls,
   MiniMap,
-  Node,
-  NodeProps,
-  OnConnect,
   addEdge,
   useEdgesState,
   useNodesState,
 } from "reactflow";
-import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
@@ -30,15 +27,6 @@ import Jimp from "jimp";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
-export type ImageFlowData = GraphNodeData<
-  MemoizedImageFunction<Image, ImageMemo>
->;
-export type ImageFlowNode = Node<ImageFlowData>;
-export type ImageFlowNodeProps = NodeProps<ImageFlowData>;
-
-export type ImageFlowNodeTypes = {
-  imageFlowNode: (props: ImageFlowNodeProps) => ReactNode;
-};
 const imageFlowNodeTypes: ImageFlowNodeTypes = {
   imageFlowNode: CustomImageFlowNode,
 };
@@ -78,42 +66,49 @@ export default function Home() {
     useEdgesState<GraphEdge[]>(initialEdges);
   const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
 
-  useEffect(() => {
-    // TODO use onnx runtime
+  const prepareMemo = useCallback((img: Image) => {
+    return img.resize(256, 256).quality(60).getBase64Async(Jimp.MIME_JPEG);
+  }, []);
+  const updateNode = useCallback(
+    (nodes: ImageFlowNode[], nodeId: string, memo: string) => {
+      return nodes.map((node, _) => {
+        if (node.id === nodeId) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              content: {
+                ...node.data.content,
+                showPreview: true,
+                memo,
+              },
+            },
+          };
+          // TODO update all nodes that depend on this node
+        }
+        return node;
+      });
+    },
+    []
+  );
 
+  // TODO use onnx runtime
+
+  useEffect(() => {
     // TODO find starting nodes by finding nodes with no incoming edges
 
     const startingNodeIndex = 0;
-    const operation = nodes[startingNodeIndex].data.content?.operation;
+    const node = nodes[startingNodeIndex];
+    
+    const operation = node.data.content?.operation;
     operation &&
       operation().then((img) => {
-        img
-          .resize(256, 256)
-          .quality(60)
-          .getBase64Async(Jimp.MIME_JPEG)
-          .then((base64) => {
-            console.log(base64);
-            // setImgSrc(base64);
-            setNodes((prev) => {
-              return prev.map((node, index) => {
-                if (index === startingNodeIndex) {
-                  return {
-                    ...node,
-                    data: {
-                      ...node.data,
-                      content: {
-                        ...node.data.content,
-                        showPreview: true,
-                        memo: base64,
-                      },
-                    },
-                  };
-                  // TODO update all nodes that depend on this node
-                }
-                return node;
-              });
-            });
+        prepareMemo(img).then((base64) => {
+          console.log(base64);
+          setNodes((prev) => {
+            return updateNode(prev, node.id, base64);
           });
+        });
       });
   }, []);
 
