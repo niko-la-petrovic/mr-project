@@ -1,4 +1,4 @@
-import { Node, NodeProps } from "reactflow";
+import { Edge, Node, NodeProps } from "reactflow";
 
 import Jimp from "jimp/*";
 import { ReactNode } from "react";
@@ -12,14 +12,8 @@ export type GraphNodeData<TContent = undefined> = {
   content?: TContent | undefined;
 };
 
-
-export type GraphEdge<TContent = undefined> = {
-  id: string;
-  source: string;
-  target: string;
-  label?: string | undefined;
-  content?: TContent | undefined;
-};
+export type ImageFlowEdgeData = {};
+export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
 
 // TODO make this many images
 export interface ImageFunction<TImage = Image> {

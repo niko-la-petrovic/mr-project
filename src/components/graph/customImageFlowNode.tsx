@@ -1,9 +1,35 @@
-import { Handle, Position } from "reactflow";
+import { Handle, Position, useReactFlow } from "reactflow";
+import {
+  ImageFlowEdge,
+  ImageFlowNode,
+  ImageFlowNodeProps,
+} from "@/types/domain";
 
 import Image from "next/image";
-import { ImageFlowNodeProps } from "@/types/domain";
+import { useCallback } from "react";
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
+  const { setNodes } = useReactFlow<ImageFlowNode, ImageFlowEdge>();
+  const updateNodeLabel = useCallback(
+    (id: string, label: string) => {
+      setNodes((prevNodes) =>
+        prevNodes.map((node) => {
+          if (node.id === id) {
+            return {
+              ...node,
+              data: {
+                ...node.data,
+                label,
+              },
+            };
+          }
+          return node;
+        })
+      );
+    },
+    [setNodes]
+  );
+
   return (
     <>
       <Handle type="target" position={Position.Top} />

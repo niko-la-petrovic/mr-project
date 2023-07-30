@@ -3,9 +3,10 @@ import "react-tooltip/dist/react-tooltip.css";
 import "reactflow/dist/style.css";
 
 import {
-  GraphEdge,
   Image,
   ImageFlowData,
+  ImageFlowEdge,
+  ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
 } from "@/types/domain";
@@ -54,17 +55,17 @@ const initialNodes: ImageFlowNode[] = [
     data: { label: "2" },
   },
 ];
-const initialEdges: GraphEdge[] = [{ id: "e1-2", source: "1", target: "2" }];
+const initialEdges: ImageFlowEdge[] = [
+  { id: "e1-2", source: "1", target: "2" },
+];
 
 export default function Home() {
-  // TODO useNodesState, ...
   const nodeTypes = useMemo(() => imageFlowNodeTypes, []);
 
   const [nodes, setNodes, onNodesChange] =
     useNodesState<ImageFlowData>(initialNodes);
   const [edges, setEdges, onEdgesChange] =
-    useEdgesState<GraphEdge[]>(initialEdges);
-  const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
+    useEdgesState<ImageFlowEdgeData>(initialEdges);
 
   const prepareMemo = useCallback((img: Image) => {
     return img.resize(256, 256).quality(60).getBase64Async(Jimp.MIME_JPEG);
@@ -99,22 +100,22 @@ export default function Home() {
 
     const startingNodeIndex = 0;
     const node = nodes[startingNodeIndex];
-    
+
     const operation = node.data.content?.operation;
     operation &&
+      !node.data.content?.memo &&
       operation().then((img) => {
         prepareMemo(img).then((base64) => {
-          console.log(base64);
           setNodes((prev) => {
             return updateNode(prev, node.id, base64);
           });
         });
       });
-  }, []);
+  }, [nodes, prepareMemo, setNodes, updateNode]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((e) => addEdge(params, e)),
-    []
+    [setEdges]
   );
 
   return (
