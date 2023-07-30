@@ -1,5 +1,7 @@
 /** @type {import('tailwindcss').Config} */
-const colors = require('tailwindcss/colors')
+const colors = require("tailwindcss/colors");
+const plugin = require("tailwindcss/plugin");
+
 module.exports = {
   content: [
     "./src/pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -8,6 +10,9 @@ module.exports = {
   ],
   theme: {
     extend: {
+      colors: {
+        primary: colors.blue,
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":
@@ -17,10 +22,24 @@ module.exports = {
         sans: ["var(--font-inter)"],
         mono: ["var(--font-roboto-mono)"],
       },
-      colors:{
+      colors: {
         primary: colors.blue,
-      }
+      },
     },
   },
-  plugins: [],
+  plugins: [
+    plugin(function ({ matchUtilities, theme }) {
+      matchUtilities(
+        {
+          s: (value) => ({
+            height: value,
+            width: value,
+          }),
+        },
+        {
+          values: theme("spacing"),
+        }
+      );
+    }),
+  ],
 };
