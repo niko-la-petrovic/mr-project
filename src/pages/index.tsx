@@ -11,14 +11,17 @@ import {
 } from "@/types/domain";
 import ReactFlow, {
   Background,
+  Connection,
   Controls,
   MiniMap,
   Node,
   NodeProps,
+  OnConnect,
+  addEdge,
   useEdgesState,
   useNodesState,
 } from "reactflow";
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useCallback, useEffect, useMemo, useState } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
@@ -45,6 +48,7 @@ const initialNodes: ImageFlowNode[] = [
     id: "1",
     position: { x: 0, y: 0 },
     type: "imageFlowNode",
+    draggable: true,
     data: {
       label: "Image Source",
       content: {
@@ -72,7 +76,6 @@ export default function Home() {
     useNodesState<ImageFlowData>(initialNodes);
   const [edges, setEdges, onEdgesChange] =
     useEdgesState<GraphEdge[]>(initialEdges);
-
   const [imgSrc, setImgSrc] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -114,6 +117,11 @@ export default function Home() {
       });
   }, []);
 
+  const onConnect = useCallback(
+    (params: Connection) => setEdges((e) => addEdge(params, e)),
+    []
+  );
+
   return (
     <div className={inter.className}>
       <div className="flex flex-col justify-center gap-4 p-4">
@@ -124,7 +132,14 @@ export default function Home() {
         <FlowToolbar />
         <div className="border border-black dark:border-white mt-0">
           <div className="h-screen w-screen">
-            <ReactFlow nodes={nodes} edges={edges} nodeTypes={nodeTypes}>
+            <ReactFlow
+              nodes={nodes}
+              edges={edges}
+              nodeTypes={nodeTypes}
+              onNodesChange={onNodesChange}
+              onEdgesChange={onEdgesChange}
+              onConnect={onConnect}
+            >
               <Controls />
               <MiniMap zoomable pannable />
               <Background gap={12} size={1} />
