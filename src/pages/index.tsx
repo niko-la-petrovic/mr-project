@@ -9,6 +9,8 @@ import {
   ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
+  NodeEdgePair,
+  OperationPair,
 } from "@/types/domain";
 import ReactFlow, {
   Background,
@@ -37,7 +39,6 @@ const initialNodes: ImageFlowNode[] = [
     id: "1",
     position: { x: 0, y: 0 },
     type: "imageFlowNode",
-    draggable: true,
     data: {
       label: "Image Source",
       content: {
@@ -56,7 +57,16 @@ const initialNodes: ImageFlowNode[] = [
   },
 ];
 const initialEdges: ImageFlowEdge[] = [
-  { id: "e1-2", source: "1", target: "2" },
+  {
+    id: "e1-2",
+    source: initialNodes[0].id,
+    target: initialNodes[1].id,
+    data: {
+      operation: (image) => {
+        return Promise.resolve(image.gaussian(3));
+      },
+    },
+  },
 ];
 
 export default function Home() {
@@ -71,7 +81,9 @@ export default function Home() {
     return img.resize(256, 256).quality(60).getBase64Async(Jimp.MIME_JPEG);
   }, []);
   const updateNode = useCallback(
+    // create dep on setNodes
     (nodes: ImageFlowNode[], nodeId: string, memo: string) => {
+      // TODO use nodeTransorm
       return nodes.map((node, _) => {
         if (node.id === nodeId) {
           return {
@@ -85,7 +97,6 @@ export default function Home() {
               },
             },
           };
-          // TODO update all nodes that depend on this node
         }
         return node;
       });
@@ -95,23 +106,50 @@ export default function Home() {
 
   // TODO use onnx runtime
 
+  const performOperation = useCallback(
+    (...nodesToUpdate: OperationPair[]) => {
+      if (nodesToUpdate.length == 0) return;
+
+      nodesToUpdate.forEach((pair) => {
+        const node = pair.node;
+        const nodeId = node.id;
+        const edge = pair.edge;
+
+        const operation = node.data.content?.operation;
+        operation &&
+          !node.data.content?.memo &&
+          operation().then((img) => {
+            prepareMemo(img).then((base64) => {
+              setNodes((prev) => updateNode(prev, nodeId, base64));
+
+              const dependentEdges = edges.filter((e) => e.source === nodeId);
+              const dependentNodes = dependentEdges
+                .map((e) => {
+                  const foundNode = nodes.find(
+                    (n): n is ImageFlowNode => n.id === e.target
+                  );
+                  return {
+                    node: foundNode,
+                    edge: e,
+                    parent: node,
+                  } as Partial<OperationPair>;
+                })
+                .filter((n): n is OperationPair => n.node !== undefined);
+              performOperation(...dependentNodes);
+            });
+          });
+      });
+    },
+    [edges, nodes, prepareMemo, setNodes, updateNode]
+  );
+
   useEffect(() => {
     // TODO find starting nodes by finding nodes with no incoming edges
 
     const startingNodeIndex = 0;
     const node = nodes[startingNodeIndex];
-
-    const operation = node.data.content?.operation;
-    operation &&
-      !node.data.content?.memo &&
-      operation().then((img) => {
-        prepareMemo(img).then((base64) => {
-          setNodes((prev) => {
-            return updateNode(prev, node.id, base64);
-          });
-        });
-      });
-  }, [nodes, prepareMemo, setNodes, updateNode]);
+    performOperation({ node });
+  }, [nodes, performOperation]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((e) => addEdge(params, e)),
