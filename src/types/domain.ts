@@ -8,6 +8,7 @@ export interface Image extends Jimp {}
 export type ImageMemo = {
   image: Image;
   thumbnail: string;
+  thumbnailDigest?: string;
 };
 
 export type GraphNodeData<TContent = undefined> = {

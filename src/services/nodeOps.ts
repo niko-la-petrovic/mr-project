@@ -8,6 +8,7 @@ import { Position, XYPosition } from "reactflow";
 
 import { ImageFlowNode } from "@/types/domain";
 import Jimp from "jimp";
+import forge from "node-forge";
 
 export const nodeTransformById = (
   nodes: ImageFlowNode[],
@@ -22,11 +23,11 @@ export const nodeTransformById = (
   });
 };
 
-export const calculateThumbnail: (img: Image) => Promise<OperationOutput> = (
+export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
   img: Image
 ) => {
   return new Promise((resolve, reject) => {
-    img
+    img.clone()
       .resize(256, 256)
       .quality(60)
       .getBase64Async(Jimp.MIME_JPEG)
@@ -34,11 +35,14 @@ export const calculateThumbnail: (img: Image) => Promise<OperationOutput> = (
         reject(err);
       })
       .then((base64) => {
-        if (base64)
+        if (base64) {
+          const md5 = forge.md.md5.create();
           resolve({
             image: img,
             thumbnail: base64,
+            thumbnailDigest: md5.update(base64).digest().toHex(),
           });
+        }
       });
   });
 };

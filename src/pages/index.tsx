@@ -25,6 +25,7 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
 import { Inter } from "next/font/google";
+import forge from "node-forge";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -50,23 +51,50 @@ export default function Home() {
       pairsToUpdate.forEach((pair) => {
         const node = pair.node;
         const nodeId = node.id;
+        const nodeMemo = node.data.content?.memo;
+        const nodeOperation = node.data.content?.operation;
 
         // TODO use edge operation
         const parentEdge = pair.edge;
 
+        // TODO check if multiple parents exist for each node
+
         const parent = pair.parent;
         const hasParent = parent !== undefined;
-        const parentImage = parent?.data.content?.memo?.image;
-        const nodeOperationArgs = hasParent && parentImage ? [parentImage] : [];
+        const parentMemo = parent?.data.content?.memo;
+        const hasParentImage = parentMemo !== undefined;
+        const nodeOperationArgs =
+          hasParent && parentMemo ? [parentMemo.image.clone()] : []; // TODO remove cloning
 
-        const operation = node.data.content?.operation;
-        operation &&
-          !node.data.content?.memo &&
-          operation(nodeOperationArgs).then((img) => {
+        nodeOperation &&
+          !nodeMemo &&
+          (hasParent ? hasParentImage : true) &&
+          nodeOperation(nodeOperationArgs).then((img) => {
             img &&
               calculateThumbnail(img).then((out) => {
                 // TODO fix - for some reason the sibling node being modified propagates to its sibling nodes
-                console.log("setting memo for node", nodeId, parent?.id);
+                const md5 = forge.md.md5.create();
+                const parentThumbnailDigest =
+                  hasParent && parentMemo
+                    ? md5
+                        .update(parentMemo.thumbnail)
+                        .digest()
+                        .toHex()
+                        .slice(0, 8)
+                    : "";
+
+                const outThumbnailDigest = md5
+                  .update(out.thumbnail)
+                  .digest()
+                  .toHex()
+                  .slice(0, 8);
+
+                console.log(
+                  "node: " + nodeId,
+                  hasParent ? "parentId: " + parent.id : "",
+                  parentMemo ? "->" + parentThumbnailDigest : "",
+                  "->" + outThumbnailDigest
+                );
                 const nodeFuture: ImageFlowNode = {
                   ...node,
                   data: {

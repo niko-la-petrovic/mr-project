@@ -48,14 +48,17 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           onChange={(value) => updateNodeLabel(value)}
         />
         {showPreview && memo ? (
-          <div className="s-64 relative">
-            <Image
-              className="absolute top-0 left-0 w-full h-full object-contain"
-              src={memo.thumbnail}
-              alt=""
-              layout="fill"
-            />
-          </div>
+          <>
+            <div className="s-64 relative">
+              <Image
+                className="absolute top-0 left-0 w-full h-full object-contain"
+                src={memo.thumbnail}
+                alt=""
+                layout="fill"
+              />
+            </div>
+            {memo.thumbnailDigest && <span>{memo.thumbnailDigest}</span>}
+          </>
         ) : (
           <div className="">
             <span>No flow yet</span>
