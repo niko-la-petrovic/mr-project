@@ -1,4 +1,10 @@
-import { Image, ImageMemo, OperationOutput } from "@/types/domain";
+import {
+  Image,
+  ImageFunction,
+  ImageMemo,
+  OperationOutput,
+} from "@/types/domain";
+import { Position, XYPosition } from "reactflow";
 
 import { ImageFlowNode } from "@/types/domain";
 import Jimp from "jimp";
@@ -57,4 +63,26 @@ export function setNodeMemoById(
   memo: ImageMemo
 ) {
   return nodeTransformById(nodes, nodeId, (node) => setNodeMemo(node, memo));
+}
+
+export function createNode(
+  id: string,
+  label: string,
+  position: XYPosition,
+  type?: string,
+  operation?: ImageFunction,
+  showPreview?: boolean
+): ImageFlowNode {
+  return {
+    id,
+    type,
+    data: {
+      label,
+      content: {
+        operation,
+        showPreview,
+      },
+    },
+    position,
+  };
 }

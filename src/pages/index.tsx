@@ -3,20 +3,12 @@ import "react-tooltip/dist/react-tooltip.css";
 import "reactflow/dist/style.css";
 
 import {
-  Image,
   ImageFlowData,
-  ImageFlowEdge,
   ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
-  NodeEdgePair,
   OperationInputPair,
 } from "@/types/domain";
-import {
-  InvertOperation,
-  PicsumSourceOperation,
-  operations,
-} from "@/services/imageOps";
 import ReactFlow, {
   Background,
   Connection,
@@ -28,77 +20,20 @@ import ReactFlow, {
 } from "reactflow";
 import {
   calculateThumbnail,
-  nodeTransformById,
-  setNodeMemo,
   setNodeMemoById,
 } from "@/services/nodeOps";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
+import { useCallback, useEffect, useMemo } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
 import { Inter } from "next/font/google";
-import Jimp from "jimp";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
 const imageFlowNodeTypes: ImageFlowNodeTypes = {
   imageFlowNode: CustomImageFlowNode,
 };
-
-const initialNodes: ImageFlowNode[] = [
-  {
-    id: "1",
-    position: { x: 0, y: 0 },
-    type: "imageFlowNode",
-    data: {
-      label: "Image Source",
-      content: {
-        operation: PicsumSourceOperation,
-        showPreview: true,
-      },
-    },
-  },
-  {
-    id: "2",
-    type: "imageFlowNode",
-    position: { x: 0, y: 400 },
-    data: {
-      label: "2",
-      content: {
-        showPreview: true,
-        operation: (...images: Image[]) => {
-          if (images.length !== 1) return Promise.resolve(undefined);
-
-          return Promise.resolve(images[0].gaussian(3));
-        },
-      },
-    },
-  },
-  {
-    id: "3",
-    type: "imageFlowNode",
-    position: { x: 400, y: 400 },
-    data: {
-      label: "3",
-      content: {
-        showPreview: true,
-        operation: InvertOperation,
-      },
-    },
-  },
-];
-const initialEdges: ImageFlowEdge[] = [
-  {
-    id: "e1-2",
-    source: initialNodes[0].id,
-    target: initialNodes[1].id,
-  },
-  {
-    id: "e2-3",
-    source: initialNodes[1].id,
-    target: initialNodes[2].id,
-  },
-];
 
 export default function Home() {
   const nodeTypes = useMemo(() => imageFlowNodeTypes, []);
@@ -130,9 +65,10 @@ export default function Home() {
         const operation = node.data.content?.operation;
         operation &&
           !node.data.content?.memo &&
-          operation(...nodeOperationArgs).then((img) => {
+          operation(nodeOperationArgs).then((img) => {
             img &&
               calculateThumbnail(img).then((out) => {
+                // TODO fix - for some reason the sibling node being modified propagates to its sibling nodes
                 const nodeFuture: ImageFlowNode = {
                   ...node,
                   data: {

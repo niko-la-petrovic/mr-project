@@ -24,8 +24,13 @@ export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
 export type OperationReturnType<TImage = Image> = Promise<TImage | undefined>;
 
 // TODO make this many images
+
+export interface SingleImageFunction<TImage = Image> {
+  (image: TImage): OperationReturnType<TImage>;
+}
+
 export interface ImageFunction<TImage = Image> {
-  (...image: TImage[]): OperationReturnType<TImage>;
+  (images: TImage[]): OperationReturnType<TImage>;
 }
 
 export interface Previewable {
@@ -69,3 +74,5 @@ export interface HasParent {
 export type OperationInputPair = NodeEdgePair & HasParent;
 
 export type OperationOutput = ImageMemo;
+
+export const nameof = <T>(name: Extract<keyof T, string>): string => name;
