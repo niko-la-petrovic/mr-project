@@ -55,7 +55,6 @@ export default function Home() {
         const nodeOperation = node.data.content?.operation;
 
         // TODO use edge operation
-        const parentEdge = pair.edge;
 
         // TODO check if multiple parents exist for each node
 
@@ -63,8 +62,8 @@ export default function Home() {
         const hasParent = parent !== undefined;
         const parentMemo = parent?.data.content?.memo;
         const hasParentImage = parentMemo !== undefined;
-        const nodeOperationArgs =
-          hasParent && parentMemo ? [parentMemo.image.clone()] : []; // TODO remove cloning
+        const clonedParentImage = parentMemo?.image.clone();
+        const nodeOperationArgs = clonedParentImage ? [clonedParentImage] : []; // TODO rework condition
 
         nodeOperation &&
           !nodeMemo &&
@@ -72,29 +71,16 @@ export default function Home() {
           nodeOperation(nodeOperationArgs).then((img) => {
             img &&
               calculateThumbnail(img).then((out) => {
-                // TODO fix - for some reason the sibling node being modified propagates to its sibling nodes
-                const md5 = forge.md.md5.create();
                 const parentThumbnailDigest =
-                  hasParent && parentMemo
-                    ? md5
-                        .update(parentMemo.thumbnail)
-                        .digest()
-                        .toHex()
-                        .slice(0, 8)
-                    : "";
-
-                const outThumbnailDigest = md5
-                  .update(out.thumbnail)
-                  .digest()
-                  .toHex()
-                  .slice(0, 8);
-
-                console.log(
+                  hasParent && parentMemo ? parentMemo.image.hash() : "";
+                const outThumbnailDigest = out.image.hash();
+                console.debug(
                   "node: " + nodeId,
                   hasParent ? "parentId: " + parent.id : "",
                   parentMemo ? "->" + parentThumbnailDigest : "",
                   "->" + outThumbnailDigest
                 );
+                
                 const nodeFuture: ImageFlowNode = {
                   ...node,
                   data: {

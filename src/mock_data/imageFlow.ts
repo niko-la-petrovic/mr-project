@@ -33,7 +33,7 @@ const gaussianBlur = createNode(
   "Gaussian Blur",
   {
     x: 0,
-    y: 400,
+    y: 450,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   curry(GaussianOperation)(3),
@@ -44,8 +44,8 @@ const invert = createNode(
   "3",
   "Invert",
   {
-    x: 400,
-    y: 400,
+    x: 450,
+    y: 450,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   InvertOperation,
@@ -57,7 +57,7 @@ const grayscale = createNode(
   "Grayscale",
   {
     x: 0,
-    y: 800,
+    y: 900,
   },
   // TODO make this default
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
@@ -69,8 +69,8 @@ const sepia = createNode(
   "5",
   "Sepia",
   {
-    x: 400,
-    y: 800,
+    x: 450,
+    y: 900,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   SepiaOperation,
@@ -81,8 +81,8 @@ const brightness = createNode(
   "6",
   "Brightness",
   {
-    x: 800,
-    y: 800,
+    x: 900,
+    y: 900,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   curry(BrightnessOperation)(0.5),
@@ -94,7 +94,7 @@ const inversion1 = createNode(
   "Invert",
   {
     x: 0,
-    y: 1200,
+    y: 1350,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   InvertOperation,
