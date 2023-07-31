@@ -18,10 +18,7 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from "reactflow";
-import {
-  calculateThumbnail,
-  setNodeMemoById,
-} from "@/services/nodeOps";
+import { calculateThumbnail, setNodeMemoById } from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
 import { useCallback, useEffect, useMemo } from "react";
 
@@ -69,6 +66,7 @@ export default function Home() {
             img &&
               calculateThumbnail(img).then((out) => {
                 // TODO fix - for some reason the sibling node being modified propagates to its sibling nodes
+                console.log("setting memo for node", nodeId, parent?.id);
                 const nodeFuture: ImageFlowNode = {
                   ...node,
                   data: {

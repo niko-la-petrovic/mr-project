@@ -53,7 +53,6 @@ export function GrayscaleOperation(images: Image[]): OperationReturnType {
 }
 
 export function SepiaOperation(images: Image[]): OperationReturnType {
-  console.log("sepia", images);
   return SingleImageOperation(
     (image) => Promise.resolve(image.sepia()),
     images

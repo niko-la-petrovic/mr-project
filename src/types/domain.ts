@@ -23,8 +23,6 @@ export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
 
 export type OperationReturnType<TImage = Image> = Promise<TImage | undefined>;
 
-// TODO make this many images
-
 export interface SingleImageFunction<TImage = Image> {
   (image: TImage): OperationReturnType<TImage>;
 }

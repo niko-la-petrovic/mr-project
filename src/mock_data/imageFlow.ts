@@ -82,10 +82,22 @@ const brightness = createNode(
   "Brightness",
   {
     x: 800,
-    y: 400,
+    y: 800,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
   curry(BrightnessOperation)(0.5),
+  true
+);
+
+const inversion1 = createNode(
+  "7",
+  "Invert",
+  {
+    x: 0,
+    y: 1200,
+  },
+  nameof<ImageFlowNodeTypes>("imageFlowNode"),
+  InvertOperation,
   true
 );
 
@@ -96,6 +108,7 @@ export const initialNodes: ImageFlowNode[] = [
   grayscale,
   sepia,
   brightness,
+  inversion1,
 ];
 export const initialEdges: ImageFlowEdge[] = [
   {
@@ -122,5 +135,10 @@ export const initialEdges: ImageFlowEdge[] = [
     id: "e3-6",
     source: invert.id,
     target: brightness.id,
+  },
+  {
+    id: "e4-7",
+    source: grayscale.id,
+    target: inversion1.id,
   },
 ];
