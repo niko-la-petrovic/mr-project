@@ -7,18 +7,26 @@ import {
   ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
+  ImageMemo,
   OperationInputPair,
 } from "@/types/domain";
 import ReactFlow, {
   Background,
   Connection,
   Controls,
+  Edge,
   MiniMap,
   addEdge,
   useEdgesState,
   useNodesState,
 } from "reactflow";
-import { calculateThumbnail, setNodeMemoById } from "@/services/nodeOps";
+import {
+  calculateThumbnail,
+  filterDependentEdges,
+  filterDependentNodes,
+  setNodeMemo,
+  setNodeMemoById,
+} from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
 import { useCallback, useEffect, useMemo } from "react";
 
@@ -59,6 +67,7 @@ export default function Home() {
         // TODO check if multiple parents exist for each node
 
         const parent = pair.parent;
+        const parentId = parent?.id;
         const hasParent = parent !== undefined;
         const parentMemo = parent?.data.content?.memo;
         const hasParentImage = parentMemo !== undefined;
@@ -71,38 +80,17 @@ export default function Home() {
           nodeOperation(nodeOperationArgs).then((img) => {
             img &&
               calculateThumbnail(img).then((out) => {
-                const parentThumbnailDigest =
-                  hasParent && parentMemo ? parentMemo.image.hash() : "";
-                const outThumbnailDigest = out.image.hash();
-                console.debug(
-                  "node: " + nodeId,
-                  hasParent ? "parentId: " + parent.id : "",
-                  parentMemo ? "->" + parentThumbnailDigest : "",
-                  "->" + outThumbnailDigest
-                );
-                
-                const nodeFuture: ImageFlowNode = {
-                  ...node,
-                  data: {
-                    ...node.data,
-                    content: { ...node.data.content, memo: out },
-                  },
-                };
+                traceOperation(hasParent, parentMemo, out, nodeId, parent);
+
+                const nodeFuture: ImageFlowNode = setNodeMemo(node, out);
                 setNodes((prev) => setNodeMemoById(prev, nodeId, out));
 
-                const dependentEdges = edges.filter((e) => e.source === nodeId);
-                const dependentNodes = dependentEdges
-                  .map((e) => {
-                    const foundNode = nodes.find(
-                      (n): n is ImageFlowNode => n.id === e.target
-                    );
-                    return {
-                      node: foundNode,
-                      edge: e,
-                      parent: nodeFuture,
-                    } as Partial<OperationInputPair>;
-                  })
-                  .filter((n): n is OperationInputPair => n.node !== undefined);
+                const dependentEdges = filterDependentEdges(edges, nodeId);
+                const dependentNodes = filterDependentNodes(
+                  dependentEdges,
+                  nodes,
+                  nodeFuture
+                );
                 performOperation(...dependentNodes);
               });
           });
@@ -152,5 +140,23 @@ export default function Home() {
         </div>
       </div>
     </div>
+  );
+}
+
+function traceOperation(
+  hasParent: boolean,
+  parentMemo: ImageMemo | null | undefined,
+  out: ImageMemo,
+  nodeId: string,
+  parent: ImageFlowNode | undefined
+) {
+  const parentThumbnailDigest =
+    hasParent && parentMemo ? parentMemo.image.hash() : "";
+  const outThumbnailDigest = out.image.hash();
+  console.debug(
+    "node: " + nodeId,
+    hasParent ? "parentId: " + parent?.id : "",
+    parentMemo ? "->" + parentThumbnailDigest : "",
+    "->" + outThumbnailDigest
   );
 }

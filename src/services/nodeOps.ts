@@ -1,10 +1,12 @@
+import { Edge, Position, XYPosition } from "reactflow";
 import {
   Image,
+  ImageFlowEdgeData,
   ImageFunction,
   ImageMemo,
+  OperationInputPair,
   OperationOutput,
 } from "@/types/domain";
-import { Position, XYPosition } from "reactflow";
 
 import { ImageFlowNode } from "@/types/domain";
 import Jimp from "jimp";
@@ -89,4 +91,23 @@ export function createNode(
     },
     position,
   };
+}
+
+export function filterDependentNodes(
+  dependentEdges: Edge<ImageFlowEdgeData>[],
+  nodes: ImageFlowNode[],
+  nodeFuture: ImageFlowNode
+) {
+  return dependentEdges
+    .map((e) => {
+      const foundNode = nodes.find(
+        (n): n is ImageFlowNode => n.id === e.target
+      );
+      return {
+        node: foundNode,
+        edge: e,
+        parent: nodeFuture,
+      } as Partial<OperationInputPair>;
+    })
+    .filter((n): n is OperationInputPair => n.node !== undefined);
 }
