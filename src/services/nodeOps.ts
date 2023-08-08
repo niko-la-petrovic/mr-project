@@ -1,6 +1,7 @@
-import { Edge, Position, XYPosition } from "reactflow";
+import { Edge, Node, Position, XYPosition } from "reactflow";
 import {
   Image,
+  ImageFlowEdge,
   ImageFlowEdgeData,
   ImageFunction,
   ImageMemo,
@@ -117,4 +118,15 @@ export function filterDependentEdges(
   nodeId: string
 ) {
   return edges.filter((e) => e.source === nodeId);
+}
+
+// TODO create a graph type
+/**
+ * Takes in edges and nodes of a graph and returns input nodes (nodes that have no input edges)
+ * @param {ImageFlowEdge[]} edges
+ * @param {ImageFlowNode[]} nodes
+ * @returns
+ */
+export function getInputNodes(edges: Edge[], nodes: Node[]) {
+  return nodes.filter((n) => !edges.find((e) => e.target === n.id));
 }

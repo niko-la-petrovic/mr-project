@@ -28,6 +28,10 @@ export interface SingleImageFunction<TImage = Image> {
   (image: TImage): OperationReturnType<TImage>;
 }
 
+export interface DoubleImageFunction<TImage = Image> {
+  (image1: TImage, image2: TImage): OperationReturnType<TImage>;
+}
+
 export interface ImageFunction<TImage = Image> {
   (images: TImage[]): OperationReturnType<TImage>;
 }

@@ -1,4 +1,5 @@
 import {
+  DoubleImageFunction,
   Image,
   ImageFunction,
   OperationOutput,
@@ -16,9 +17,19 @@ export function SingleImageOperation(
   imageFunction: SingleImageFunction,
   images: Image[]
 ): OperationReturnType {
-  if (tooManyArguments(images)) return tooManyArgumentsPromise();
+  if (moreThanOneArgument(images)) return tooManyArgumentsPromise();
 
   return imageFunction(firstImage(images));
+}
+
+export function DoubleImageOperation(
+  imageFunction: DoubleImageFunction,
+  images: Image[]
+): OperationReturnType {
+  if (moreThanTwoArguments(images)) return tooManyArgumentsPromise();
+  else if (lessThanTwoArguments(images)) return tooFewArgumentsPromise();
+
+  return imageFunction(images[0], images[1]);
 }
 
 export function GaussianOperation(
@@ -69,10 +80,44 @@ export function BrightnessOperation(
   );
 }
 
-const tooManyArguments = (images: Image[]) => {
+export function CompositeOperation(
+  opacityDestination: number,
+  opacitySource: number,
+  position: { x: number; y: number },
+  images: Image[]
+): OperationReturnType {
+  return DoubleImageOperation(
+    (image1, image2) =>
+      Promise.resolve(
+        image1.composite(image2, position.x, position.y, {
+          mode: Jimp.BLEND_SOURCE_OVER,
+          opacitySource,
+          opacityDest: opacityDestination,
+        })
+      ),
+    images
+  );
+}
+
+const moreThanOneArgument = (images: Image[]) => {
   return images.length > 1;
 };
 
+function moreThanTwoArguments(images: Image[]) {
+  return images.length > 2;
+}
+
+export function lessThanTwoArguments(images: Image[]) {
+  return images.length < 2;
+}
+
+export function tooFewArgumentsPromise() {
+  return Promise.reject("Too few arguments");
+}
+
+// TODO check why this is firing even though it seems like insufficient argument
+// TODO also this did work for a second, but it didnt seem to perform the right operation
+// TODO debug this issue and see whats happening
 const tooManyArgumentsPromise = () => Promise.reject("Too many arguments");
 
 const firstImage = (images: Image[]): Image => {

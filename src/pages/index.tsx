@@ -15,7 +15,6 @@ import ReactFlow, {
   Background,
   Connection,
   Controls,
-  Edge,
   MiniMap,
   addEdge,
   useEdgesState,
@@ -25,6 +24,7 @@ import {
   calculateThumbnail,
   filterDependentEdges,
   filterDependentNodes,
+  getInputNodes,
   setNodeMemo,
   setNodeMemoById,
 } from "@/services/nodeOps";
@@ -34,7 +34,6 @@ import { useCallback, useEffect, useMemo } from "react";
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
 import { Inter } from "next/font/google";
-import forge from "node-forge";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -65,8 +64,6 @@ export default function Home() {
 
         // TODO use edge operation
 
-        // TODO check if multiple parents exist for each node
-
         const updatedParent = pair.parent;
         const updatedParentId = updatedParent?.id;
         const hasUpdatedParent = updatedParent !== undefined;
@@ -81,54 +78,58 @@ export default function Home() {
           nodes.find((n) => n.id === e.source)
         );
         const parentNodesImages = parentNodes
-          .map((n) => n?.data.content?.memo?.image)
+          .map((n) => n?.data.content?.memo?.image.clone())
           .filter((i): i is Image => i !== undefined);
         // TODO add ordering for parent nodes or to their edges (i think ordering the edges is better)
 
-        const nodeOperationArgs = clonedUpdatedParentImage
+        const inputImages = clonedUpdatedParentImage
           ? [clonedUpdatedParentImage, ...parentNodesImages]
-          : []; // TODO rework condition
+          : [];
 
+        // TODO rework condition
         nodeOperation &&
           !nodeMemo &&
           (hasUpdatedParent ? hasUpdatedParentImage : true) &&
-          nodeOperation(nodeOperationArgs).then((img) => {
-            img &&
-              calculateThumbnail(img).then((out) => {
-                traceOperation(
-                  hasUpdatedParent,
-                  updatedParentMemo,
-                  out,
-                  nodeId,
-                  updatedParent
-                );
+          nodeOperation(inputImages)
+            .catch((e) => {
+              console.error("Error in operation", e, nodeId);
+            })
+            .then((img) => {
+              img &&
+                calculateThumbnail(img).then((out) => {
+                  traceOperation(
+                    hasUpdatedParent,
+                    inputImages,
+                    out.image,
+                    nodeId,
+                    updatedParent
+                  );
 
-                const nodeFuture: ImageFlowNode = setNodeMemo(node, out);
-                setNodes((prev) => setNodeMemoById(prev, nodeId, out));
+                  const nodeFuture: ImageFlowNode = setNodeMemo(node, out);
+                  setNodes((prev) => setNodeMemoById(prev, nodeId, out));
 
-                const dependentEdges = filterDependentEdges(edges, nodeId);
-                const dependentNodes = filterDependentNodes(
-                  dependentEdges,
-                  nodes,
-                  nodeFuture
-                );
-                performOperation(...dependentNodes);
-              });
-          });
+                  const dependentEdges = filterDependentEdges(edges, nodeId);
+                  const dependentNodes = filterDependentNodes(
+                    dependentEdges,
+                    nodes,
+                    nodeFuture
+                  );
+                  performOperation(...dependentNodes);
+                });
+            });
       });
     },
     [edges, nodes, setNodes]
   );
 
   useEffect(() => {
-    // TODO find starting nodes by finding nodes with no incoming edges
+    const inputNodes = getInputNodes(edges, nodes).filter(
+      (n) => n.data.content?.memo === undefined
+    );
 
-    const startingNodeIndex = 0;
-    const node = nodes[startingNodeIndex];
-    if (node.data.content?.memo) return;
-
-    performOperation({ node });
-  }, [nodes, performOperation]);
+    inputNodes.length > 0 &&
+      performOperation(...inputNodes.map((n) => ({ node: n })));
+  }, [nodes, edges, performOperation]);
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((e) => addEdge(params, e)),
@@ -137,6 +138,7 @@ export default function Home() {
 
   return (
     <div className={inter.className}>
+      {/* TOOD Remove full padding around the whole thing */}
       <div className="flex flex-col justify-center gap-4 p-4">
         <div className="flex justify-center items-center">
           <span className="text-4xl font-light">Image Flow</span>
@@ -166,18 +168,21 @@ export default function Home() {
 
 function traceOperation(
   hasParent: boolean,
-  parentMemo: ImageMemo | null | undefined,
-  out: ImageMemo,
+  parentMemos: Image[],
+  out: Image,
   nodeId: string,
   parent: ImageFlowNode | undefined
 ) {
+  const hasInputs = parentMemos.length > 0;
   const parentThumbnailDigest =
-    hasParent && parentMemo ? parentMemo.image.hash() : "";
-  const outThumbnailDigest = out.image.hash();
+    hasParent && hasInputs
+      ? parentMemos.map((image) => image.hash()).join(", ")
+      : "";
+  const outDigest = out.hash();
   console.debug(
     "node: " + nodeId,
     hasParent ? "parentId: " + parent?.id : "",
-    parentMemo ? "->" + parentThumbnailDigest : "",
-    "->" + outThumbnailDigest
+    hasInputs ? "->" + parentThumbnailDigest : "",
+    "->" + outDigest
   );
 }

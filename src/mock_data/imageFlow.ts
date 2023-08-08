@@ -1,5 +1,6 @@
 import {
   BrightnessOperation,
+  CompositeOperation,
   GaussianOperation,
   GrayscaleOperation,
   InvertOperation,
@@ -13,6 +14,7 @@ import {
   nameof,
 } from "@/types/domain";
 
+import Jimp from "jimp";
 import { createNode } from "@/services/nodeOps";
 import { curry } from "lodash";
 
@@ -101,6 +103,30 @@ const inversion1 = createNode(
   true
 );
 
+const composite = createNode(
+  "8",
+  "Composite",
+  {
+    x: 450,
+    y: 1350,
+  },
+  nameof<ImageFlowNodeTypes>("imageFlowNode"),
+  curry(CompositeOperation)(0.8, 1, { x: 0, y: 0 }),
+  true
+);
+
+const picsumSource1 = createNode(
+  "9",
+  "Image Source",
+  {
+    x: 900,
+    y: 1350,
+  },
+  nameof<ImageFlowNodeTypes>("imageFlowNode"),
+  PicsumSourceOperation,
+  true
+);
+
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
   gaussianBlur,
@@ -109,6 +135,8 @@ export const initialNodes: ImageFlowNode[] = [
   sepia,
   brightness,
   inversion1,
+  composite,
+  picsumSource1,
 ];
 export const initialEdges: ImageFlowEdge[] = [
   {
@@ -141,4 +169,14 @@ export const initialEdges: ImageFlowEdge[] = [
     source: grayscale.id,
     target: inversion1.id,
   },
+  {
+    id: "e9-8",
+    source: picsumSource1.id,
+    target: composite.id,
+  },
+  {
+    id: "e1-8",
+    source: picsumSource.id,
+    target: composite.id,
+  },  
 ];
