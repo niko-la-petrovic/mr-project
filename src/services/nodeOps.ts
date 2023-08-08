@@ -111,3 +111,10 @@ export function filterDependentNodes(
     })
     .filter((n): n is OperationInputPair => n.node !== undefined);
 }
+
+export function filterDependentEdges(
+  edges: Edge<ImageFlowEdgeData>[],
+  nodeId: string
+) {
+  return edges.filter((e) => e.source === nodeId);
+}

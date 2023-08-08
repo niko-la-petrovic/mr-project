@@ -3,6 +3,7 @@ import "react-tooltip/dist/react-tooltip.css";
 import "reactflow/dist/style.css";
 
 import {
+  Image,
   ImageFlowData,
   ImageFlowEdgeData,
   ImageFlowNode,
@@ -66,21 +67,41 @@ export default function Home() {
 
         // TODO check if multiple parents exist for each node
 
-        const parent = pair.parent;
-        const parentId = parent?.id;
-        const hasParent = parent !== undefined;
-        const parentMemo = parent?.data.content?.memo;
-        const hasParentImage = parentMemo !== undefined;
-        const clonedParentImage = parentMemo?.image.clone();
-        const nodeOperationArgs = clonedParentImage ? [clonedParentImage] : []; // TODO rework condition
+        const updatedParent = pair.parent;
+        const updatedParentId = updatedParent?.id;
+        const hasUpdatedParent = updatedParent !== undefined;
+        const updatedParentMemo = updatedParent?.data.content?.memo;
+        const hasUpdatedParentImage = updatedParentMemo !== undefined;
+        const clonedUpdatedParentImage = updatedParentMemo?.image.clone();
+
+        const parentEdges = edges.filter(
+          (e) => e.target === nodeId && e.source !== updatedParentId
+        );
+        const parentNodes = parentEdges.map((e) =>
+          nodes.find((n) => n.id === e.source)
+        );
+        const parentNodesImages = parentNodes
+          .map((n) => n?.data.content?.memo?.image)
+          .filter((i): i is Image => i !== undefined);
+        // TODO add ordering for parent nodes or to their edges (i think ordering the edges is better)
+
+        const nodeOperationArgs = clonedUpdatedParentImage
+          ? [clonedUpdatedParentImage, ...parentNodesImages]
+          : []; // TODO rework condition
 
         nodeOperation &&
           !nodeMemo &&
-          (hasParent ? hasParentImage : true) &&
+          (hasUpdatedParent ? hasUpdatedParentImage : true) &&
           nodeOperation(nodeOperationArgs).then((img) => {
             img &&
               calculateThumbnail(img).then((out) => {
-                traceOperation(hasParent, parentMemo, out, nodeId, parent);
+                traceOperation(
+                  hasUpdatedParent,
+                  updatedParentMemo,
+                  out,
+                  nodeId,
+                  updatedParent
+                );
 
                 const nodeFuture: ImageFlowNode = setNodeMemo(node, out);
                 setNodes((prev) => setNodeMemoById(prev, nodeId, out));
