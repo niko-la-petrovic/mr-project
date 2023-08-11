@@ -128,10 +128,10 @@ export function createNode(
 }
 
 export function filterDependentNodes(
-  dependentEdges: Edge<ImageFlowEdgeData>[],
+  dependentEdges: Edge[],
   nodes: ImageFlowNode[],
   nodeFuture: ImageFlowNode
-) {
+): OperationInputPair[] {
   return dependentEdges
     .map((e) => {
       const foundNode = nodes.find(
@@ -146,20 +146,29 @@ export function filterDependentNodes(
     .filter((n): n is OperationInputPair => n.node !== undefined);
 }
 
-export function filterDependentEdges(
-  edges: Edge<ImageFlowEdgeData>[],
+/**
+ * Given edges and a node id, returns edges that depend on the node with the given id. In other words, returns edges that have the node with the given id as their source.
+ * @param {TNode[]} edges Edges of a graph
+ * @param {string} nodeId Id of a node
+ * @returns {TNode[]} Edges that depend on the node with the given id
+ */
+export function filterDependentEdges<TEdge extends Edge>(
+  edges: TEdge[],
   nodeId: string
-) {
+): TEdge[] {
   return edges.filter((e) => e.source === nodeId);
 }
 
 // TODO create a graph type
 /**
- * Takes in edges and nodes of a graph and returns input nodes (nodes that have no input edges)
- * @param {ImageFlowEdge[]} edges
- * @param {ImageFlowNode[]} nodes
- * @returns
+ * Takes in edges and nodes of a graph and returns input nodes - nodes that have no input edges
+ * @param {TEdge[]} edges
+ * @param {TNode[]} nodes
+ * @returns {TNode[]} Input nodes - nodes that have no input edges
  */
-export function getInputNodes(edges: Edge[], nodes: Node[]) {
+export function getInputNodes<TEdge extends Edge, TNode extends Node>(
+  edges: TEdge[],
+  nodes: TNode[]
+): TNode[] {
   return nodes.filter((n) => !edges.find((e) => e.target === n.id));
 }
