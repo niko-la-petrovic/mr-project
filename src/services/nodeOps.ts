@@ -1,7 +1,7 @@
 import { Edge, Node, XYPosition } from "reactflow";
 import {
   Image,
-  ImageFlowEdgeData,
+  ImageFlowEdge,
   ImageFunction,
   ImageMemo,
   OperationInputPair,
@@ -159,7 +159,7 @@ export function filterDependentEdges<TEdge extends Edge>(
   return edges.filter((e) => e.source === nodeId);
 }
 
-// TODO create a graph type
+// TODO use graph type as input
 /**
  * Takes in edges and nodes of a graph and returns input nodes - nodes that have no input edges
  * @param {TEdge[]} edges
@@ -171,4 +171,103 @@ export function getInputNodes<TEdge extends Edge, TNode extends Node>(
   nodes: TNode[]
 ): TNode[] {
   return nodes.filter((n) => !edges.find((e) => e.target === n.id));
+}
+
+export function performOperation(
+  edges: ImageFlowEdge[],
+  getNodes: () => ImageFlowNode[],
+  setNodes: (
+    updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[]
+  ) => void,
+  ...pairsToUpdate: OperationInputPair[]
+): void {
+  if (pairsToUpdate.length == 0) return;
+
+  pairsToUpdate.forEach((pair) => {
+    const node = pair.node;
+    const nodeId = node.id;
+    const nodeMemo = node.data.content?.memo;
+    const nodeOperation = node.data.content?.operation;
+
+    // TODO use edge operation
+
+    const updatedParent = pair.parent;
+    const updatedParentId = updatedParent?.id;
+    const hasUpdatedParent = updatedParent !== undefined;
+    const updatedParentMemo = updatedParent?.data.content?.memo;
+    const hasUpdatedParentImage = updatedParentMemo !== undefined;
+    const clonedUpdatedParentImage = updatedParentMemo?.image.clone();
+
+    const parentEdges = edges.filter(
+      (e) => e.target === nodeId && e.source !== updatedParentId
+    );
+    const parentNodes = parentEdges.map((e) =>
+      getNodes().find((n) => n.id === e.source)
+    );
+    const parentNodesImages = parentNodes
+      .map((n) => n?.data.content?.memo?.image.clone())
+      .filter((i): i is Image => i !== undefined);
+    // TODO add ordering for parent nodes or to their edges (i think ordering the edges is better)
+
+    const inputImages = clonedUpdatedParentImage
+      ? [clonedUpdatedParentImage, ...parentNodesImages]
+      : [];
+
+    nodeOperation &&
+      !nodeMemo &&
+      (hasUpdatedParent ? hasUpdatedParentImage : true) &&
+      nodeOperation(inputImages)
+        .then((img) => {
+          img &&
+            calculateThumbnail(img).then((out) => {
+              traceOperation(
+                hasUpdatedParent,
+                inputImages,
+                out.image,
+                nodeId,
+                updatedParent
+              );
+
+              const nodeFuture: ImageFlowNode = deepSetNodeMemo(node, out);
+              setNodes((prev) => deepSetNodeMemoById(prev, nodeId, out));
+
+              const dependentEdges = filterDependentEdges(edges, nodeId);
+              const dependentNodes = filterDependentNodes(
+                dependentEdges,
+                getNodes(),
+                nodeFuture
+              );
+              performOperation(edges, getNodes, setNodes, ...dependentNodes);
+            });
+        })
+        .catch((e) => {
+          console.debug(
+            "💢 Error in operation",
+            e,
+            `node: ${nodeId}`,
+            `"parent: ${updatedParentId}"`
+          );
+        });
+  });
+}
+
+function traceOperation(
+  hasParent: boolean,
+  parentMemos: Image[],
+  out: Image,
+  nodeId: string,
+  parent: ImageFlowNode | undefined
+) {
+  const hasInputs = parentMemos.length > 0;
+  const parentThumbnailDigest =
+    hasParent && hasInputs
+      ? parentMemos.map((image) => image.hash()).join(", ")
+      : "";
+  const outDigest = out.hash();
+  console.debug(
+    "node: " + nodeId,
+    hasParent ? "parentId: " + parent?.id : "",
+    hasInputs ? "->" + parentThumbnailDigest : "",
+    "->" + outDigest
+  );
 }

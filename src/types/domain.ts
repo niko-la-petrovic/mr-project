@@ -3,7 +3,8 @@ import { Edge, Node, NodeProps } from "reactflow";
 import Jimp from "jimp/*";
 import { ReactNode } from "react";
 
-// TODO reduce this to just the types we need
+// TODO create a graph type
+// TODO reduce this to just the types/props we need
 export interface Image extends Jimp {}
 export type ImageMemo = {
   image: Image;
