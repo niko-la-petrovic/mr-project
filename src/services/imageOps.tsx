@@ -80,7 +80,7 @@ export function BrightnessOperation(
   );
 }
 
-// TODO allow the blend mode to be specified
+// TODO allow the blend mode to be specified through a parameter
 export function CompositeOperation(
   opacityDestination: number,
   opacitySource: number,

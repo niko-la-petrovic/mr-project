@@ -23,11 +23,12 @@ import ReactFlow, {
 } from "reactflow";
 import {
   calculateThumbnail,
+  deepSetNodeMemoById,
   filterDependentEdges,
   filterDependentNodes,
   getInputNodes,
-  setNodeMemoById,
   shallowSetNodeMemo,
+  shallowSetNodeMemoById,
 } from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
 import { useCallback, useEffect, useMemo } from "react";
@@ -102,7 +103,7 @@ const performOperation = (
 
               // TODO remove object cloning in setNodeMemo and in setNodeMemoById
               const nodeFuture: ImageFlowNode = shallowSetNodeMemo(node, out);
-              setNodes((prev) => setNodeMemoById(prev, nodeId, out));
+              setNodes((prev) => shallowSetNodeMemoById(prev, nodeId, out));
 
               const dependentEdges = filterDependentEdges(edges, nodeId);
               const dependentNodes = filterDependentNodes(
@@ -126,6 +127,7 @@ const performOperation = (
 
 // TODO useRef for the nodes + useEffect to set modify the nodes
 export default function Home() {
+  const nodeTypes = useMemo<ImageFlowNodeTypes>(() => imageFlowNodeTypes, []);
   const [nodes, setNodes, onNodesChange] =
     useNodesState<ImageFlowData>(initialNodes);
   const [edges, setEdges, onEdgesChange] =
@@ -148,8 +150,8 @@ export default function Home() {
         ) => {
           localNodes = updaterFunction(localNodes);
           setNodes(localNodes);
+          console.debug("setLocalNodes", localNodes);
         };
-        
 
         // get input nodes without memo
         const inputNodes = getInputNodes(prevEdges, localNodes).filter(
@@ -192,7 +194,7 @@ export default function Home() {
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              nodeTypes={imageFlowNodeTypes}
+              nodeTypes={nodeTypes}
               onNodesChange={onNodesChange}
               onEdgesChange={onEdgesChange}
               onConnect={onConnect}

@@ -111,7 +111,7 @@ const composite = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
-  curry(CompositeOperation)(0.5, 1, { x: 0, y: 0 }),
+  curry(CompositeOperation)( 0.5, 1, { x: 0, y: 0 }),
   true
 );
 

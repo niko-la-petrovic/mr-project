@@ -13,7 +13,7 @@ import { ImageFlowNode } from "@/types/domain";
 import Jimp from "jimp";
 import forge from "node-forge";
 
-export const nodeTransformById = (
+export const deepNodeTransformById = (
   nodes: ImageFlowNode[],
   id: string,
   transformation: (node: ImageFlowNode) => ImageFlowNode
@@ -24,6 +24,20 @@ export const nodeTransformById = (
     }
     return node;
   });
+};
+
+export const shallowNodeTransformById = (
+  nodes: ImageFlowNode[],
+  id: string,
+  transformation: (node: ImageFlowNode) => ImageFlowNode
+): ImageFlowNode[] => {
+  nodes.forEach((node) => {
+    if (node.id === id) {
+      return transformation(node);
+    }
+    return node;
+  });
+  return nodes;
 };
 
 export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
@@ -74,13 +88,23 @@ export function shallowSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   return node;
 }
 
-export function setNodeMemoById(
+export function shallowSetNodeMemoById(
   nodes: ImageFlowNode[],
   nodeId: string,
   memo: ImageMemo
 ) {
-  return nodeTransformById(nodes, nodeId, (node) =>
+  return shallowNodeTransformById(nodes, nodeId, (node) =>
     shallowSetNodeMemo(node, memo)
+  );
+}
+
+export function deepSetNodeMemoById(
+  nodes: ImageFlowNode[],
+  nodeId: string,
+  memo: ImageMemo
+) {
+  return deepNodeTransformById(nodes, nodeId, (node) =>
+    deepSetNodeMemo(node, memo)
   );
 }
 

@@ -11,7 +11,7 @@ import { useCallback, useMemo } from "react";
 
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
-import { nodeTransformById } from "@/services/nodeOps";
+import { shallowNodeTransformById } from "@/services/nodeOps";
 
 // TODO make into container component
 
@@ -23,7 +23,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   const updateNodeLabel = useCallback(
     (label: string) =>
       setNodes((nodes) =>
-        nodeTransformById(nodes, id, (node) => ({
+        shallowNodeTransformById(nodes, id, (node) => ({
           ...node,
           data: { ...node.data, label },
         }))
