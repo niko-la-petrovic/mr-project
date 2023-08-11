@@ -129,14 +129,14 @@ const picsumSource1 = createNode(
 
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
-  // gaussianBlur,
-  // invert,
-  // grayscale,
-  // sepia,
-  // brightness,
-  // inversion1,
-  // composite,
-  // picsumSource1,
+  gaussianBlur,
+  invert,
+  grayscale,
+  sepia,
+  brightness,
+  inversion1,
+  composite,
+  picsumSource1,
 ];
 export const initialEdges: ImageFlowEdge[] = [
   {

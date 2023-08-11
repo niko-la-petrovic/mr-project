@@ -26,8 +26,8 @@ import {
   filterDependentEdges,
   filterDependentNodes,
   getInputNodes,
-  setNodeMemo,
   setNodeMemoById,
+  shallowSetNodeMemo,
 } from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
 import { useCallback, useEffect, useMemo } from "react";
@@ -67,6 +67,7 @@ const performOperation = (
     const hasUpdatedParentImage = updatedParentMemo !== undefined;
     const clonedUpdatedParentImage = updatedParentMemo?.image.clone();
 
+    // for some reason the updated memo for node1 isnt available when node9 executes this
     const parentEdges = edges.filter(
       (e) => e.target === nodeId && e.source !== updatedParentId
     );
@@ -81,7 +82,7 @@ const performOperation = (
     const inputImages = clonedUpdatedParentImage
       ? [clonedUpdatedParentImage, ...parentNodesImages]
       : [];
-    // console.log("inputImages", inputImages);
+    console.log("inputImages", inputImages);
 
     // TODO rework condition
     nodeOperation &&
@@ -99,7 +100,8 @@ const performOperation = (
                 updatedParent
               );
 
-              const nodeFuture: ImageFlowNode = setNodeMemo(node, out);
+              // TODO remove object cloning in setNodeMemo and in setNodeMemoById
+              const nodeFuture: ImageFlowNode = shallowSetNodeMemo(node, out);
               setNodes((prev) => setNodeMemoById(prev, nodeId, out));
 
               const dependentEdges = filterDependentEdges(edges, nodeId);
@@ -134,15 +136,26 @@ export default function Home() {
   // TODO document how the passed nodes must be mutable copies
   // TODO check out why the whole tree is being re-rendered twice
 
-  // render the graph on start once - use updater function and no deps
+  // render the graph on start once
   useEffect(() => {
     setEdges((prevEdges) => {
       setNodes((prevNodes) => {
+        // TODO don't preemptively copy all nodes - perform the copy in the operation
+        // make local copy of nodes
+        let localNodes = prevNodes.map((n) => ({ ...n }));
+        const setLocalNodes = (
+          updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[]
+        ) => {
+          localNodes = updaterFunction(localNodes);
+          setNodes(localNodes);
+        };
+        
+
         // get input nodes without memo
-        const inputNodes = getInputNodes(prevEdges, prevNodes).filter(
+        const inputNodes = getInputNodes(prevEdges, localNodes).filter(
           (n) => n.data.content?.memo === undefined
         );
-        console.debug("inputNodes", inputNodes, prevNodes, prevEdges, setNodes);
+        console.debug("inputNodes", inputNodes, localNodes, prevEdges);
         // only perform operation if there are input nodes
         // TODO make local copy of nodes
         // TODO make local setNodes function to update the local nodes
@@ -150,11 +163,11 @@ export default function Home() {
         inputNodes.length > 0 &&
           performOperation(
             prevEdges,
-            prevNodes,
-            setNodes,
+            localNodes,
+            setLocalNodes,
             ...inputNodes.map((n) => ({ node: n }))
           );
-        return prevNodes;
+        return localNodes;
       });
       return prevEdges;
     });

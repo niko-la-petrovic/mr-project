@@ -50,7 +50,7 @@ export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
   });
 };
 
-export function setNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
+export function deepSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   return {
     ...node,
     data: {
@@ -64,12 +64,24 @@ export function setNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   };
 }
 
+export function shallowSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
+  if (node.data?.content === undefined) {
+    throw new Error("Node data content is undefined");
+  }
+
+  node.data.content.memo = memo;
+  node.data.content.showPreview = true;
+  return node;
+}
+
 export function setNodeMemoById(
   nodes: ImageFlowNode[],
   nodeId: string,
   memo: ImageMemo
 ) {
-  return nodeTransformById(nodes, nodeId, (node) => setNodeMemo(node, memo));
+  return nodeTransformById(nodes, nodeId, (node) =>
+    shallowSetNodeMemo(node, memo)
+  );
 }
 
 export function createNode(

@@ -80,6 +80,7 @@ export function BrightnessOperation(
   );
 }
 
+// TODO allow the blend mode to be specified
 export function CompositeOperation(
   opacityDestination: number,
   opacitySource: number,
@@ -90,7 +91,7 @@ export function CompositeOperation(
     (image1, image2) =>
       Promise.resolve(
         image1.composite(image2, position.x, position.y, {
-          mode: Jimp.BLEND_SOURCE_OVER,
+          mode: Jimp.BLEND_DESTINATION_OVER,
           opacitySource,
           opacityDest: opacityDestination,
         })
