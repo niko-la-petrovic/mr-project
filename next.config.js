@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  reactStrictMode: true,
+  reactStrictMode: false,
+  // TODO revert reactStrictMode to true
   // TODO Remove this bit of configuration
   // Added only to support JIMP 0.16.13 - this package should be updated and this error handled
   webpack: (config, { isServer }) => {

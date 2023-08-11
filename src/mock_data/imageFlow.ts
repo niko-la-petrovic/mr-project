@@ -111,7 +111,7 @@ const composite = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
-  curry(CompositeOperation)(0.8, 1, { x: 0, y: 0 }),
+  curry(CompositeOperation)(0.5, 1, { x: 0, y: 0 }),
   true
 );
 
@@ -129,14 +129,14 @@ const picsumSource1 = createNode(
 
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
-  gaussianBlur,
-  invert,
-  grayscale,
-  sepia,
-  brightness,
-  inversion1,
-  composite,
-  picsumSource1,
+  // gaussianBlur,
+  // invert,
+  // grayscale,
+  // sepia,
+  // brightness,
+  // inversion1,
+  // composite,
+  // picsumSource1,
 ];
 export const initialEdges: ImageFlowEdge[] = [
   {
