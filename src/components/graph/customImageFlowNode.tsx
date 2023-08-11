@@ -1,17 +1,17 @@
 import { Handle, Position, useReactFlow } from "reactflow";
 import {
   ImageFlowData,
-  ImageFlowEdge,
   ImageFlowEdgeData,
-  ImageFlowNode,
   ImageFlowNodeProps,
 } from "@/types/domain";
-import _, { curry } from "lodash";
-import { useCallback, useMemo } from "react";
 
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
-import { shallowNodeTransformById } from "@/services/nodeOps";
+import _ from "lodash";
+import {
+  deepNodeTransformById,
+} from "@/services/nodeOps";
+import { useCallback } from "react";
 
 // TODO make into container component
 
@@ -23,7 +23,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   const updateNodeLabel = useCallback(
     (label: string) =>
       setNodes((nodes) =>
-        shallowNodeTransformById(nodes, id, (node) => ({
+        deepNodeTransformById(nodes, id, (node) => ({
           ...node,
           data: { ...node.data, label },
         }))
