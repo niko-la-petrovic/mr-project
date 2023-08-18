@@ -1,7 +1,7 @@
 export interface InputProps {
-  value: string;
-  type: "text" | "number";
-  onChange?: (value: string) => void;
+  value: string
+  type: 'text' | 'number'
+  onChange?: (value: string) => void
 }
 
 export default function Input({ value, onChange, type }: InputProps) {
@@ -12,5 +12,5 @@ export default function Input({ value, onChange, type }: InputProps) {
       onChange={(e) => onChange && onChange(e.target.value)}
       type={type}
     />
-  );
+  )
 }

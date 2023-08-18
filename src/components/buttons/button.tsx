@@ -1,22 +1,22 @@
-import { PlacesType, Tooltip } from "react-tooltip";
+import { PlacesType, Tooltip } from 'react-tooltip'
 
-import { ReactNode } from "react";
+import { ReactNode } from 'react'
 
 export interface TooltipProps {
-  id: string;
-  place?: PlacesType;
-  content: string;
+  id: string
+  place?: PlacesType
+  content: string
 }
 
 export interface ButtonProps {
-  tooltip?: TooltipProps;
-  disabled?: boolean;
-  onClick?: () => void;
-  children: ReactNode;
+  tooltip?: TooltipProps
+  disabled?: boolean
+  onClick?: () => void
+  children: ReactNode
 }
 
 export function Button({ children, tooltip, ...props }: ButtonProps) {
-  const tooltipProvided = tooltip !== undefined;
+  const tooltipProvided = tooltip !== undefined
   return (
     <>
       <button
@@ -24,14 +24,14 @@ export function Button({ children, tooltip, ...props }: ButtonProps) {
         {...props}
         {...(tooltipProvided
           ? {
-              "data-tooltip-id": tooltip.id,
-              "data-tooltip-content": tooltip.content,
+              'data-tooltip-id': tooltip.id,
+              'data-tooltip-content': tooltip.content,
             }
           : undefined)}
       >
         {children}
       </button>
-      {tooltip && <Tooltip id={tooltip.id} place={tooltip.place ?? "bottom"} />}
+      {tooltip && <Tooltip id={tooltip.id} place={tooltip.place ?? 'bottom'} />}
     </>
-  );
+  )
 }

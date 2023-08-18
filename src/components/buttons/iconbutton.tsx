@@ -1,10 +1,10 @@
-import { Button, ButtonProps } from "./button";
+import { Button, ButtonProps } from './button'
 
-import { ReactNode } from "react";
+import { ReactNode } from 'react'
 
 export interface IconButtonProps extends ButtonProps {
-  iconBefore?: ReactNode;
-  iconAfter?: ReactNode;
+  iconBefore?: ReactNode
+  iconAfter?: ReactNode
 }
 export function IconButton({
   children,
@@ -20,5 +20,5 @@ export function IconButton({
         {iconAfter && <div>{iconAfter}</div>}
       </div>
     </Button>
-  );
+  )
 }

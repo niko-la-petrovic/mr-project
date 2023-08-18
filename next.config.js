@@ -5,20 +5,19 @@ const nextConfig = {
   // TODO Remove this bit of configuration
   // Added only to support JIMP 0.16.13 - this package should be updated and this error handled
   webpack: (config, { isServer }) => {
-    if (isServer) return config;
+    if (isServer) return config
     else {
-      config.resolve.fallback.fs = false;
-      return config;
+      config.resolve.fallback.fs = false
+      return config
     }
   },
-};
+}
 
-module.exports = nextConfig;
-
+module.exports = nextConfig
 
 // Injected content via Sentry wizard below
 
-const { withSentryConfig } = require("@sentry/nextjs");
+const { withSentryConfig } = require('@sentry/nextjs')
 
 module.exports = withSentryConfig(
   module.exports,
@@ -29,8 +28,8 @@ module.exports = withSentryConfig(
     // Suppresses source map uploading logs during build
     silent: true,
 
-    org: "sentry",
-    project: "react-image-flow",
+    org: 'sentry',
+    project: 'react-image-flow',
   },
   {
     // For all available options, see:
@@ -43,12 +42,12 @@ module.exports = withSentryConfig(
     transpileClientSDK: true,
 
     // Routes browser requests to Sentry through a Next.js rewrite to circumvent ad-blockers (increases server load)
-    tunnelRoute: "/monitoring",
+    tunnelRoute: '/monitoring',
 
     // Hides source maps from generated client bundles
     hideSourceMaps: true,
 
     // Automatically tree-shake Sentry logger statements to reduce bundle size
     disableLogger: true,
-  }
-);
+  },
+)

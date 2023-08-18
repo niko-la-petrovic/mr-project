@@ -1,82 +1,82 @@
-import { Edge, Node, NodeProps } from "reactflow";
+import { Edge, Node, NodeProps } from 'reactflow'
 
-import Jimp from "jimp/*";
-import { ReactNode } from "react";
+import Jimp from 'jimp/*'
+import { ReactNode } from 'react'
 
 // TODO create a graph type
 // TODO reduce this to just the types/props we need
 export interface Image extends Jimp {}
 export type ImageMemo = {
-  image: Image;
-  thumbnail: string;
-  thumbnailDigest?: string;
-};
+  image: Image
+  thumbnail: string
+  thumbnailDigest?: string
+}
 
 export type GraphNodeData<TContent = undefined> = {
-  label: string;
-  content?: TContent | undefined;
-};
+  label: string
+  content?: TContent | undefined
+}
 
 export type ImageFlowEdgeData<
   TImage = Image,
-  TImageMemo = ImageMemo
-> = NonPreviewable<MemoizedImageFunction<TImage, TImageMemo>>;
-export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>;
+  TImageMemo = ImageMemo,
+> = NonPreviewable<MemoizedImageFunction<TImage, TImageMemo>>
+export type ImageFlowEdge = Edge<ImageFlowEdgeData | undefined>
 
-export type OperationReturnType<TImage = Image> = Promise<TImage | undefined>;
+export type OperationReturnType<TImage = Image> = Promise<TImage | undefined>
 
 export interface SingleImageFunction<TImage = Image> {
-  (image: TImage): OperationReturnType<TImage>;
+  (image: TImage): OperationReturnType<TImage>
 }
 
 export interface DoubleImageFunction<TImage = Image> {
-  (image1: TImage, image2: TImage): OperationReturnType<TImage>;
+  (image1: TImage, image2: TImage): OperationReturnType<TImage>
 }
 
 export interface ImageFunction<TImage = Image> {
-  (images: TImage[]): OperationReturnType<TImage>;
+  (images: TImage[]): OperationReturnType<TImage>
 }
 
 export interface Previewable {
-  showPreview?: boolean;
+  showPreview?: boolean
 }
 
-export type NonPreviewable<T> = Omit<T, keyof Previewable>;
+export type NonPreviewable<T> = Omit<T, keyof Previewable>
 
 export interface MemoizedImageFunction<TImage = Image, TMemoImage = ImageMemo>
   extends Previewable {
-  memo?: TMemoImage | null;
-  operation?: ImageFunction<TImage>;
+  memo?: TMemoImage | null
+  operation?: ImageFunction<TImage>
 }
 
 // TODO intersect/union to make content required
 export type ImageFlowNodeData<
   TImage = Image,
-  TMemoImage = ImageMemo
-> = MemoizedImageFunction<TImage, TMemoImage>;
+  TMemoImage = ImageMemo,
+> = MemoizedImageFunction<TImage, TMemoImage>
 
 export type ImageFlowData = GraphNodeData<
   MemoizedImageFunction<Image, ImageMemo>
->;
+>
 
-export type ImageFlowNode = Node<ImageFlowData>;
-export type ImageFlowNodeProps = NodeProps<ImageFlowData>;
+export type ImageFlowNode = Node<ImageFlowData>
+export type ImageFlowNodeProps = NodeProps<ImageFlowData>
 
 export type ImageFlowNodeTypes = {
-  imageFlowNode: (props: ImageFlowNodeProps) => ReactNode;
-};
-
-export type NodeEdgePair = {
-  node: ImageFlowNode;
-  edge?: ImageFlowEdge;
-};
-
-export interface HasParent {
-  parent?: ImageFlowNode;
+  imageFlowNode: (props: ImageFlowNodeProps) => ReactNode
 }
 
-export type OperationInputPair = NodeEdgePair & HasParent;
+export type NodeEdgePair = {
+  node: ImageFlowNode
+  edge?: ImageFlowEdge
+}
 
-export type OperationOutput = ImageMemo;
+export interface HasParent {
+  parent?: ImageFlowNode
+}
 
-export const nameof = <T>(name: Extract<keyof T, string>): string => name;
+export type OperationInputPair = NodeEdgePair & HasParent
+
+export type OperationOutput = ImageMemo
+
+export const nameof = <T>(name: Extract<keyof T, string>): string => name

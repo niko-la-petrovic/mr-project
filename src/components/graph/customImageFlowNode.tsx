@@ -1,41 +1,41 @@
-import { Handle, Position, useReactFlow } from "reactflow";
+import { Handle, Position, useReactFlow } from 'reactflow'
 import {
   ImageFlowData,
   ImageFlowEdgeData,
   ImageFlowNodeProps,
-} from "@/types/domain";
+} from '@/types/domain'
 
-import { AiOutlineDownload } from "react-icons/ai";
-import { IconButton } from "../buttons/iconButton";
-import Image from "next/legacy/image";
-import Input from "../inputs/input";
-import { downloadNodeImage } from "@/services/downloadNodeImage";
-import { updateNodeLabel } from "@/services/updateNodeLabel";
-import { useCallback } from "react";
+import { AiOutlineDownload } from 'react-icons/ai'
+import { IconButton } from '../buttons/iconButton'
+import Image from 'next/legacy/image'
+import Input from '../inputs/input'
+import { downloadNodeImage } from '@/services/downloadNodeImage'
+import { updateNodeLabel } from '@/services/updateNodeLabel'
+import { useCallback } from 'react'
 
 // TODO make into container component
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
-  const { setNodes } = useReactFlow<ImageFlowData, ImageFlowEdgeData>();
+  const { setNodes } = useReactFlow<ImageFlowData, ImageFlowEdgeData>()
 
-  const content = data.content;
-  const showPreview = content?.showPreview;
-  const memo = content?.memo;
-  const image = data.content?.memo?.image;
+  const content = data.content
+  const showPreview = content?.showPreview
+  const memo = content?.memo
+  const image = data.content?.memo?.image
 
   const onNodeLabelChange = useCallback(
     (label: string) => updateNodeLabel(id, label, setNodes),
-    [id, setNodes]
-  );
+    [id, setNodes],
+  )
 
   const onDownloadImage = useCallback(() => {
     if (!image) {
-      console.debug("no image");
-      return;
+      console.debug('no image')
+      return
     }
 
-    downloadNodeImage(image, id);
-  }, [id, image]);
+    downloadNodeImage(image, id)
+  }, [id, image])
 
   return (
     <>
@@ -76,5 +76,5 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
       </div>
       <Handle type="source" position={Position.Bottom} id="a" />
     </>
-  );
+  )
 }

@@ -1,44 +1,44 @@
-import { Edge, Node, XYPosition } from "reactflow";
+import { Edge, Node, XYPosition } from 'reactflow'
 import {
   Image,
   ImageFlowEdge,
   ImageFunction,
   ImageMemo,
   OperationInputPair,
-} from "@/types/domain";
+} from '@/types/domain'
 
-import { ImageFlowNode } from "@/types/domain";
-import Jimp from "jimp";
+import { ImageFlowNode } from '@/types/domain'
+import Jimp from 'jimp'
 
 export const deepNodeTransformById = (
   nodes: ImageFlowNode[],
   id: string,
-  transformation: (node: ImageFlowNode) => ImageFlowNode
+  transformation: (node: ImageFlowNode) => ImageFlowNode,
 ): ImageFlowNode[] => {
   return nodes.map((node) => {
     if (node.id === id) {
-      return transformation(node);
+      return transformation(node)
     }
-    return node;
-  });
-};
+    return node
+  })
+}
 
 export const shallowNodeTransformById = (
   nodes: ImageFlowNode[],
   id: string,
-  transformation: (node: ImageFlowNode) => ImageFlowNode
+  transformation: (node: ImageFlowNode) => ImageFlowNode,
 ): ImageFlowNode[] => {
   nodes.forEach((node) => {
     if (node.id === id) {
-      return transformation(node);
+      return transformation(node)
     }
-    return node;
-  });
-  return nodes;
-};
+    return node
+  })
+  return nodes
+}
 
 export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
-  img: Image
+  img: Image,
 ) => {
   return new Promise((resolve, reject) => {
     img
@@ -47,7 +47,7 @@ export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
       .quality(60)
       .getBase64Async(Jimp.MIME_JPEG)
       .catch((err) => {
-        reject(err);
+        reject(err)
       })
       .then((base64) => {
         if (base64) {
@@ -55,11 +55,11 @@ export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
             image: img,
             thumbnail: base64,
             thumbnailDigest: img.hash(),
-          });
+          })
         }
-      });
-  });
-};
+      })
+  })
+}
 
 export function deepSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   return {
@@ -72,37 +72,37 @@ export function deepSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
         memo,
       },
     },
-  };
+  }
 }
 
 export function shallowSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   if (node.data?.content === undefined) {
-    throw new Error("Node data content is undefined");
+    throw new Error('Node data content is undefined')
   }
 
-  node.data.content.memo = memo;
-  node.data.content.showPreview = true;
-  return node;
+  node.data.content.memo = memo
+  node.data.content.showPreview = true
+  return node
 }
 
 export function shallowSetNodeMemoById(
   nodes: ImageFlowNode[],
   nodeId: string,
-  memo: ImageMemo
+  memo: ImageMemo,
 ) {
   return shallowNodeTransformById(nodes, nodeId, (node) =>
-    shallowSetNodeMemo(node, memo)
-  );
+    shallowSetNodeMemo(node, memo),
+  )
 }
 
 export function deepSetNodeMemoById(
   nodes: ImageFlowNode[],
   nodeId: string,
-  memo: ImageMemo
+  memo: ImageMemo,
 ) {
   return deepNodeTransformById(nodes, nodeId, (node) =>
-    deepSetNodeMemo(node, memo)
-  );
+    deepSetNodeMemo(node, memo),
+  )
 }
 
 export function createNode(
@@ -111,7 +111,7 @@ export function createNode(
   position: XYPosition,
   type?: string,
   operation?: ImageFunction,
-  showPreview?: boolean
+  showPreview?: boolean,
 ): ImageFlowNode {
   return {
     id,
@@ -124,26 +124,24 @@ export function createNode(
       },
     },
     position,
-  };
+  }
 }
 
 export function filterDependentNodes(
   dependentEdges: Edge[],
   nodes: ImageFlowNode[],
-  nodeFuture: ImageFlowNode
+  nodeFuture: ImageFlowNode,
 ): OperationInputPair[] {
   return dependentEdges
     .map((e) => {
-      const foundNode = nodes.find(
-        (n): n is ImageFlowNode => n.id === e.target
-      );
+      const foundNode = nodes.find((n): n is ImageFlowNode => n.id === e.target)
       return {
         node: foundNode,
         edge: e,
         parent: nodeFuture,
-      } as Partial<OperationInputPair>;
+      } as Partial<OperationInputPair>
     })
-    .filter((n): n is OperationInputPair => n.node !== undefined);
+    .filter((n): n is OperationInputPair => n.node !== undefined)
 }
 
 /**
@@ -154,9 +152,9 @@ export function filterDependentNodes(
  */
 export function filterDependentEdges<TEdge extends Edge>(
   edges: TEdge[],
-  nodeId: string
+  nodeId: string,
 ): TEdge[] {
-  return edges.filter((e) => e.source === nodeId);
+  return edges.filter((e) => e.source === nodeId)
 }
 
 // TODO use graph type as input
@@ -168,9 +166,9 @@ export function filterDependentEdges<TEdge extends Edge>(
  */
 export function getInputNodes<TEdge extends Edge, TNode extends Node>(
   edges: TEdge[],
-  nodes: TNode[]
+  nodes: TNode[],
 ): TNode[] {
-  return nodes.filter((n) => !edges.find((e) => e.target === n.id));
+  return nodes.filter((n) => !edges.find((e) => e.target === n.id))
 }
 
 // TODO use graph type as input
@@ -182,50 +180,50 @@ export function getInputNodes<TEdge extends Edge, TNode extends Node>(
  */
 export function getOutputNodes<TEdge extends Edge, TNode extends Node>(
   edges: TEdge[],
-  nodes: TNode[]
+  nodes: TNode[],
 ): TNode[] {
-  return nodes.filter((n) => !edges.find((e) => e.source === n.id));
+  return nodes.filter((n) => !edges.find((e) => e.source === n.id))
 }
 
 export function performOperation(
   edges: ImageFlowEdge[],
   getNodes: () => ImageFlowNode[],
   setNodes: (
-    updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[]
+    updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[],
   ) => void,
   ...pairsToUpdate: OperationInputPair[]
 ): void {
-  if (pairsToUpdate.length == 0) return;
+  if (pairsToUpdate.length == 0) return
 
   pairsToUpdate.forEach((pair) => {
-    const node = pair.node;
-    const nodeId = node.id;
-    const nodeMemo = node.data.content?.memo;
-    const nodeOperation = node.data.content?.operation;
+    const node = pair.node
+    const nodeId = node.id
+    const nodeMemo = node.data.content?.memo
+    const nodeOperation = node.data.content?.operation
 
     // TODO use edge operation
 
-    const updatedParent = pair.parent;
-    const updatedParentId = updatedParent?.id;
-    const hasUpdatedParent = updatedParent !== undefined;
-    const updatedParentMemo = updatedParent?.data.content?.memo;
-    const hasUpdatedParentImage = updatedParentMemo !== undefined;
-    const clonedUpdatedParentImage = updatedParentMemo?.image.clone();
+    const updatedParent = pair.parent
+    const updatedParentId = updatedParent?.id
+    const hasUpdatedParent = updatedParent !== undefined
+    const updatedParentMemo = updatedParent?.data.content?.memo
+    const hasUpdatedParentImage = updatedParentMemo !== undefined
+    const clonedUpdatedParentImage = updatedParentMemo?.image.clone()
 
     const parentEdges = edges.filter(
-      (e) => e.target === nodeId && e.source !== updatedParentId
-    );
+      (e) => e.target === nodeId && e.source !== updatedParentId,
+    )
     const parentNodes = parentEdges.map((e) =>
-      getNodes().find((n) => n.id === e.source)
-    );
+      getNodes().find((n) => n.id === e.source),
+    )
     const parentNodesImages = parentNodes
       .map((n) => n?.data.content?.memo?.image.clone())
-      .filter((i): i is Image => i !== undefined);
+      .filter((i): i is Image => i !== undefined)
     // TODO add ordering for parent nodes or to their edges (i think ordering the edges is better)
 
     const inputImages = clonedUpdatedParentImage
       ? [clonedUpdatedParentImage, ...parentNodesImages]
-      : [];
+      : []
 
     nodeOperation &&
       !nodeMemo &&
@@ -239,30 +237,30 @@ export function performOperation(
                 inputImages,
                 out.image,
                 nodeId,
-                updatedParent
-              );
+                updatedParent,
+              )
 
-              const nodeFuture: ImageFlowNode = deepSetNodeMemo(node, out);
-              setNodes((prev) => deepSetNodeMemoById(prev, nodeId, out));
+              const nodeFuture: ImageFlowNode = deepSetNodeMemo(node, out)
+              setNodes((prev) => deepSetNodeMemoById(prev, nodeId, out))
 
-              const dependentEdges = filterDependentEdges(edges, nodeId);
+              const dependentEdges = filterDependentEdges(edges, nodeId)
               const dependentNodes = filterDependentNodes(
                 dependentEdges,
                 getNodes(),
-                nodeFuture
-              );
-              performOperation(edges, getNodes, setNodes, ...dependentNodes);
-            });
+                nodeFuture,
+              )
+              performOperation(edges, getNodes, setNodes, ...dependentNodes)
+            })
         })
         .catch((e) => {
           console.debug(
-            "💢 Error in operation",
+            '💢 Error in operation',
             e,
             `node: ${nodeId}`,
-            `"parent: ${updatedParentId}"`
-          );
-        });
-  });
+            `"parent: ${updatedParentId}"`,
+          )
+        })
+  })
 }
 
 function traceOperation(
@@ -270,18 +268,18 @@ function traceOperation(
   parentMemos: Image[],
   out: Image,
   nodeId: string,
-  parent: ImageFlowNode | undefined
+  parent: ImageFlowNode | undefined,
 ) {
-  const hasInputs = parentMemos.length > 0;
+  const hasInputs = parentMemos.length > 0
   const parentThumbnailDigest =
     hasParent && hasInputs
-      ? parentMemos.map((image) => image.hash()).join(", ")
-      : "";
-  const outDigest = out.hash();
+      ? parentMemos.map((image) => image.hash()).join(', ')
+      : ''
+  const outDigest = out.hash()
   console.debug(
-    "node: " + nodeId,
-    hasParent ? "parentId: " + parent?.id : "",
-    hasInputs ? "->" + parentThumbnailDigest : "",
-    "->" + outDigest
-  );
+    'node: ' + nodeId,
+    hasParent ? 'parentId: ' + parent?.id : '',
+    hasInputs ? '->' + parentThumbnailDigest : '',
+    '->' + outDigest,
+  )
 }

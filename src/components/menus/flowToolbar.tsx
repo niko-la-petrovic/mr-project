@@ -3,14 +3,14 @@ import {
   AiOutlineDownload,
   AiOutlinePlaySquare,
   AiOutlinePlusSquare,
-} from "react-icons/ai";
+} from 'react-icons/ai'
 
-import { IconButton } from "../buttons/iconButton";
+import { IconButton } from '../buttons/iconButton'
 
-const toolbarIconClass = "text-2xl";
+const toolbarIconClass = 'text-2xl'
 
 export interface FlowToolbarProps {
-  downloadOutputImages: () => void;
+  downloadOutputImages: () => void
 }
 
 export default function FlowToolbar({
@@ -19,21 +19,21 @@ export default function FlowToolbar({
   return (
     <div className="flex justify-start gap-1 z-10">
       {/* TODO add shortcut descriptors to each of these */}
-      <IconButton tooltip={{ id: "add", content: "Add" }}>
+      <IconButton tooltip={{ id: 'add', content: 'Add' }}>
         <AiOutlinePlusSquare className={toolbarIconClass} />
       </IconButton>
-      <IconButton tooltip={{ id: "add", content: "Remove" }}>
+      <IconButton tooltip={{ id: 'add', content: 'Remove' }}>
         <AiOutlineDelete className={toolbarIconClass} />
       </IconButton>
-      <IconButton tooltip={{ id: "add", content: "Run" }}>
+      <IconButton tooltip={{ id: 'add', content: 'Run' }}>
         <AiOutlinePlaySquare className={toolbarIconClass} />
       </IconButton>
       <IconButton
-        tooltip={{ id: "add", content: "Save" }}
+        tooltip={{ id: 'add', content: 'Save' }}
         onClick={downloadOutputImages}
       >
         <AiOutlineDownload className={toolbarIconClass} />
       </IconButton>
     </div>
-  );
+  )
 }

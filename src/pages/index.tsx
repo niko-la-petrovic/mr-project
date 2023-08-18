@@ -1,13 +1,13 @@
-import "reactflow/dist/style.css";
-import "react-tooltip/dist/react-tooltip.css";
-import "reactflow/dist/style.css";
+import 'reactflow/dist/style.css'
+import 'react-tooltip/dist/react-tooltip.css'
+import 'reactflow/dist/style.css'
 
 import {
   ImageFlowData,
   ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
-} from "@/types/domain";
+} from '@/types/domain'
 import ReactFlow, {
   Background,
   Connection,
@@ -16,33 +16,33 @@ import ReactFlow, {
   addEdge,
   useEdgesState,
   useNodesState,
-} from "reactflow";
+} from 'reactflow'
 import {
   getInputNodes,
   getOutputNodes,
   performOperation,
-} from "@/services/nodeOps";
-import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
-import { useCallback, useEffect, useMemo } from "react";
+} from '@/services/nodeOps'
+import { initialEdges, initialNodes } from '@/mock_data/imageFlow'
+import { useCallback, useEffect, useMemo } from 'react'
 
-import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
-import FlowToolbar from "@/components/menus/flowToolbar";
-import { Inter } from "next/font/google";
-import { getImageUrlAsync } from "@/services/imageOps";
-import { saveBlobToFile } from "@/services/saveFile";
+import { CustomImageFlowNode } from '@/components/graph/customImageFlowNode'
+import FlowToolbar from '@/components/menus/flowToolbar'
+import { Inter } from 'next/font/google'
+import { getImageUrlAsync } from '@/services/imageOps'
+import { saveBlobToFile } from '@/services/saveFile'
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
+const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 const imageFlowNodeTypes: ImageFlowNodeTypes = {
   imageFlowNode: CustomImageFlowNode,
-};
+}
 
 export default function Home() {
-  const nodeTypes = useMemo<ImageFlowNodeTypes>(() => imageFlowNodeTypes, []);
+  const nodeTypes = useMemo<ImageFlowNodeTypes>(() => imageFlowNodeTypes, [])
   const [nodes, setNodes, onNodesChange] =
-    useNodesState<ImageFlowData>(initialNodes);
+    useNodesState<ImageFlowData>(initialNodes)
   const [edges, setEdges, onEdgesChange] =
-    useEdgesState<ImageFlowEdgeData>(initialEdges);
+    useEdgesState<ImageFlowEdgeData>(initialEdges)
 
   // TODO use onnx runtime
 
@@ -53,11 +53,11 @@ export default function Home() {
           fetch(url)
             .then((response) => response.blob())
             .then((blob) => {
-              saveBlobToFile([blob], "image/png", `${n.id}.png`);
-            })
-        );
-    });
-  }, [edges, nodes]);
+              saveBlobToFile([blob], 'image/png', `${n.id}.png`)
+            }),
+        )
+    })
+  }, [edges, nodes])
 
   // TODO document
   // render the graph on start once
@@ -66,36 +66,36 @@ export default function Home() {
       setNodes((prevNodes) => {
         // TODO refactor this inner function
         // make local copy of nodes
-        let localNodes = prevNodes.map((n) => ({ ...n }));
+        let localNodes = prevNodes.map((n) => ({ ...n }))
         const setLocalNodes = (
-          updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[]
+          updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[],
         ) => {
-          localNodes = updaterFunction(localNodes);
-          setNodes(localNodes);
-        };
+          localNodes = updaterFunction(localNodes)
+          setNodes(localNodes)
+        }
 
         // get input nodes without memo
         const inputNodes = getInputNodes(prevEdges, localNodes).filter(
-          (n) => n.data.content?.memo === undefined
-        );
+          (n) => n.data.content?.memo === undefined,
+        )
         // only perform operation if there are input nodes
         inputNodes.length > 0 &&
           performOperation(
             prevEdges,
             () => localNodes,
             setLocalNodes,
-            ...inputNodes.map((n) => ({ node: n }))
-          );
-        return localNodes;
-      });
-      return prevEdges;
-    });
-  }, [setEdges, setNodes]);
+            ...inputNodes.map((n) => ({ node: n })),
+          )
+        return localNodes
+      })
+      return prevEdges
+    })
+  }, [setEdges, setNodes])
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((e) => addEdge(params, e)),
-    [setEdges]
-  );
+    [setEdges],
+  )
 
   return (
     <div className={inter.className}>
@@ -124,5 +124,5 @@ export default function Home() {
         </div>
       </div>
     </div>
-  );
+  )
 }
