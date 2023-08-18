@@ -45,15 +45,16 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
     }
     // TODO error or warning if no image
     // TODO extract into reusable function
+    // TODO allow for changing the save format
     getImageUrlAsync(image).then((url) => {
       if (!url) return;
       fetch(url)
         .then((response) => response.blob())
         .then((blob) => {
-          saveBlobToFile([blob], "image/png", "image.png");
+          saveBlobToFile([blob], "image/png", `${id}.png`);
         });
     });
-  }, [data.content?.memo?.image]);
+  }, [data.content?.memo?.image, id]);
 
   return (
     <>
