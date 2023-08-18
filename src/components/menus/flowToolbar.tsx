@@ -9,7 +9,13 @@ import { IconButton } from "../buttons/iconButton";
 
 const toolbarIconClass = "text-2xl";
 
-export default function FlowToolbar() {
+export interface FlowToolbarProps {
+  downloadOutputImages: () => void;
+}
+
+export default function FlowToolbar({
+  downloadOutputImages,
+}: FlowToolbarProps) {
   return (
     <div className="flex justify-start gap-1 z-10">
       {/* TODO add shortcut descriptors to each of these */}
@@ -22,10 +28,12 @@ export default function FlowToolbar() {
       <IconButton tooltip={{ id: "add", content: "Run" }}>
         <AiOutlinePlaySquare className={toolbarIconClass} />
       </IconButton>
-      <IconButton tooltip={{ id: "add", content: "Save" }}>
+      <IconButton
+        tooltip={{ id: "add", content: "Save" }}
+        onClick={downloadOutputImages}
+      >
         <AiOutlineDownload className={toolbarIconClass} />
       </IconButton>
     </div>
   );
 }
-

@@ -3,13 +3,10 @@ import "react-tooltip/dist/react-tooltip.css";
 import "reactflow/dist/style.css";
 
 import {
-  Image,
   ImageFlowData,
-  ImageFlowEdge,
   ImageFlowEdgeData,
   ImageFlowNode,
   ImageFlowNodeTypes,
-  OperationInputPair,
 } from "@/types/domain";
 import ReactFlow, {
   Background,
@@ -21,20 +18,18 @@ import ReactFlow, {
   useNodesState,
 } from "reactflow";
 import {
-  calculateThumbnail,
-  deepSetNodeMemo,
-  deepSetNodeMemoById,
-  filterDependentEdges,
-  filterDependentNodes,
   getInputNodes,
+  getOutputNodes,
   performOperation,
 } from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
+import { saveBase64ToFile, saveBlobToFile } from "@/services/saveFile";
 import { useCallback, useEffect, useMemo } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
 import { Inter } from "next/font/google";
+import { getImageUrlAsync } from "@/services/imageOps";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -50,6 +45,23 @@ export default function Home() {
     useEdgesState<ImageFlowEdgeData>(initialEdges);
 
   // TODO use onnx runtime
+
+  const downloadOutputImages = useCallback(() => {
+    getOutputNodes(edges, nodes).forEach((n) => {
+      n?.data?.content?.memo?.image &&
+        getImageUrlAsync(n.data.content.memo.image).then((url) =>
+          fetch(url)
+            .then((response) => response.blob())
+            .then((blob) => {
+              saveBlobToFile(
+                [blob],
+                "image/png",
+                `${n.id}.png`
+              );
+            })
+        );
+    });
+  }, [edges, nodes]);
 
   // TODO document
   // render the graph on start once
@@ -97,7 +109,7 @@ export default function Home() {
           <span className="text-4xl font-light">Image Flow</span>
         </div>
         {/* TODO use panel as toolbar on mobile? */}
-        <FlowToolbar />
+        <FlowToolbar downloadOutputImages={downloadOutputImages} />
         <div className="border border-black dark:border-white mt-0">
           <div className="h-screen w-screen">
             <ReactFlow

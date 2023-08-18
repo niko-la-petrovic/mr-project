@@ -132,3 +132,7 @@ export const operations = {
   invertOperation: InvertOperation,
   blurOperation: BlurOperation,
 };
+
+export function getImageUrlAsync(image: Image): Promise<string> {
+  return image.getBase64Async(Jimp.MIME_PNG);
+}

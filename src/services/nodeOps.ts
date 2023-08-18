@@ -173,6 +173,20 @@ export function getInputNodes<TEdge extends Edge, TNode extends Node>(
   return nodes.filter((n) => !edges.find((e) => e.target === n.id));
 }
 
+// TODO use graph type as input
+/**
+ * Takes in edges and nodes of a graph and returns output nodes - nodes that have no output edges
+ * @param {TEdge[]} edges
+ * @param {TNode[]} nodes
+ * @returns {TNode[]} Output nodes - nodes that have no output edges
+ */
+export function getOutputNodes<TEdge extends Edge, TNode extends Node>(
+  edges: TEdge[],
+  nodes: TNode[]
+): TNode[] {
+  return nodes.filter((n) => !edges.find((e) => e.source === n.id));
+}
+
 export function performOperation(
   edges: ImageFlowEdge[],
   getNodes: () => ImageFlowNode[],

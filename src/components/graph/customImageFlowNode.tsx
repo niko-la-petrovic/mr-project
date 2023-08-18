@@ -4,13 +4,15 @@ import {
   ImageFlowEdgeData,
   ImageFlowNodeProps,
 } from "@/types/domain";
+import { saveBase64ToFile, saveBlobToFile } from "@/services/saveFile";
 
+import { AiOutlineDownload } from "react-icons/ai";
+import { IconButton } from "../buttons/iconButton";
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
 import _ from "lodash";
-import {
-  deepNodeTransformById,
-} from "@/services/nodeOps";
+import { deepNodeTransformById } from "@/services/nodeOps";
+import { getImageUrlAsync } from "@/services/imageOps";
 import { useCallback } from "react";
 
 // TODO make into container component
@@ -35,6 +37,24 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   const showPreview = content?.showPreview;
   const memo = content?.memo;
 
+  const downloadImage = useCallback(() => {
+    const image = data.content?.memo?.image;
+    if (!image) {
+      console.debug("no image");
+      return;
+    }
+    // TODO error or warning if no image
+    // TODO extract into reusable function
+    getImageUrlAsync(image).then((url) => {
+      if (!url) return;
+      fetch(url)
+        .then((response) => response.blob())
+        .then((blob) => {
+          saveBlobToFile([blob], "image/png", "image.png");
+        });
+    });
+  }, [data.content?.memo?.image]);
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -57,7 +77,17 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
                 layout="fill"
               />
             </div>
-            {memo.thumbnailDigest && <span>{memo.thumbnailDigest}</span>}
+            {memo.thumbnailDigest && (
+              <div className="flex items-center gap-2">
+                <span>{memo.thumbnailDigest}</span>
+                <IconButton>
+                  <AiOutlineDownload
+                    className="text-lg"
+                    onClick={downloadImage}
+                  />
+                </IconButton>
+              </div>
+            )}
           </>
         ) : (
           <div className="">
