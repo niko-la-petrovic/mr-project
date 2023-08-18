@@ -4,15 +4,14 @@ import {
   ImageFlowEdgeData,
   ImageFlowNodeProps,
 } from "@/types/domain";
-import { saveBase64ToFile, saveBlobToFile } from "@/services/saveFile";
 
 import { AiOutlineDownload } from "react-icons/ai";
 import { IconButton } from "../buttons/iconButton";
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
 import _ from "lodash";
-import { deepNodeTransformById } from "@/services/nodeOps";
-import { getImageUrlAsync } from "@/services/imageOps";
+import { downloadNodeImage } from "@/services/downloadNodeImage";
+import { updateNodeLabel } from "@/services/updateNodeLabel";
 import { useCallback } from "react";
 
 // TODO make into container component
@@ -22,39 +21,25 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
     ImageFlowData,
     ImageFlowEdgeData
   >();
-  const updateNodeLabel = useCallback(
-    (label: string) =>
-      setNodes((nodes) =>
-        deepNodeTransformById(nodes, id, (node) => ({
-          ...node,
-          data: { ...node.data, label },
-        }))
-      ),
-    [id, setNodes]
-  );
 
   const content = data.content;
   const showPreview = content?.showPreview;
   const memo = content?.memo;
+  const image = data.content?.memo?.image;
 
-  const downloadImage = useCallback(() => {
-    const image = data.content?.memo?.image;
+  const onNodeLabelChange = useCallback(
+    (label: string) => updateNodeLabel(id, label, setNodes),
+    [id, setNodes]
+  );
+
+  const onDownloadImage = useCallback(() => {
     if (!image) {
       console.debug("no image");
       return;
     }
-    // TODO error or warning if no image
-    // TODO extract into reusable function
-    // TODO allow for changing the save format
-    getImageUrlAsync(image).then((url) => {
-      if (!url) return;
-      fetch(url)
-        .then((response) => response.blob())
-        .then((blob) => {
-          saveBlobToFile([blob], "image/png", `${id}.png`);
-        });
-    });
-  }, [data.content?.memo?.image, id]);
+
+    downloadNodeImage(image, id);
+  }, [id, image]);
 
   return (
     <>
@@ -63,11 +48,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
         <span className="absolute top-0 left-0 text-xs font-semibold pl-2 pt-2 opacity-20">
           {id}
         </span>
-        <Input
-          type="text"
-          value={data.label}
-          onChange={(value) => updateNodeLabel(value)}
-        />
+        <Input type="text" value={data.label} onChange={onNodeLabelChange} />
         {showPreview && memo ? (
           <>
             <div className="s-64 relative">
@@ -84,7 +65,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
                 <IconButton>
                   <AiOutlineDownload
                     className="text-lg"
-                    onClick={downloadImage}
+                    onClick={onDownloadImage}
                   />
                 </IconButton>
               </div>
@@ -92,6 +73,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           </>
         ) : (
           <div className="">
+            {/* TODO loader */}
             <span>No flow yet</span>
           </div>
         )}
