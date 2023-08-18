@@ -1,5 +1,7 @@
 import { PlacesType, Tooltip } from "react-tooltip";
 
+import { ReactNode } from "react";
+
 export interface TooltipProps {
   id: string;
   place?: PlacesType;
@@ -10,7 +12,7 @@ export interface ButtonProps {
   tooltip?: TooltipProps;
   disabled?: boolean;
   onClick?: () => void;
-  children: React.ReactNode;
+  children: ReactNode;
 }
 
 export function Button({ children, tooltip, ...props }: ButtonProps) {

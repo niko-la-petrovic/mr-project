@@ -14,7 +14,6 @@ import {
   nameof,
 } from "@/types/domain";
 
-import Jimp from "jimp";
 import { createNode } from "@/services/nodeOps";
 import { curry } from "lodash";
 
@@ -111,7 +110,7 @@ const composite = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>("imageFlowNode"),
-  curry(CompositeOperation)( 0.5, 1, { x: 0, y: 0 }),
+  curry(CompositeOperation)(0.5, 1, { x: 0, y: 0 }),
   true
 );
 
@@ -178,5 +177,5 @@ export const initialEdges: ImageFlowEdge[] = [
     id: "e1-8",
     source: picsumSource.id,
     target: composite.id,
-  },  
+  },
 ];

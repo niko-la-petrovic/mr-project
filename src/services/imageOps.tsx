@@ -1,8 +1,6 @@
 import {
   DoubleImageFunction,
   Image,
-  ImageFunction,
-  OperationOutput,
   OperationReturnType,
   SingleImageFunction,
 } from "@/types/domain";

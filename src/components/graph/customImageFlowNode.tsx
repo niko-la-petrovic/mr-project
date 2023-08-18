@@ -9,7 +9,6 @@ import { AiOutlineDownload } from "react-icons/ai";
 import { IconButton } from "../buttons/iconButton";
 import Image from "next/legacy/image";
 import Input from "../inputs/input";
-import _ from "lodash";
 import { downloadNodeImage } from "@/services/downloadNodeImage";
 import { updateNodeLabel } from "@/services/updateNodeLabel";
 import { useCallback } from "react";
@@ -17,10 +16,7 @@ import { useCallback } from "react";
 // TODO make into container component
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
-  const { setNodes, getEdge } = useReactFlow<
-    ImageFlowData,
-    ImageFlowEdgeData
-  >();
+  const { setNodes } = useReactFlow<ImageFlowData, ImageFlowEdgeData>();
 
   const content = data.content;
   const showPreview = content?.showPreview;

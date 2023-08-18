@@ -23,13 +23,13 @@ import {
   performOperation,
 } from "@/services/nodeOps";
 import { initialEdges, initialNodes } from "@/mock_data/imageFlow";
-import { saveBase64ToFile, saveBlobToFile } from "@/services/saveFile";
 import { useCallback, useEffect, useMemo } from "react";
 
 import { CustomImageFlowNode } from "@/components/graph/customImageFlowNode";
 import FlowToolbar from "@/components/menus/flowToolbar";
 import { Inter } from "next/font/google";
 import { getImageUrlAsync } from "@/services/imageOps";
+import { saveBlobToFile } from "@/services/saveFile";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter" });
 
@@ -53,11 +53,7 @@ export default function Home() {
           fetch(url)
             .then((response) => response.blob())
             .then((blob) => {
-              saveBlobToFile(
-                [blob],
-                "image/png",
-                `${n.id}.png`
-              );
+              saveBlobToFile([blob], "image/png", `${n.id}.png`);
             })
         );
     });
