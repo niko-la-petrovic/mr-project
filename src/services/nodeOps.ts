@@ -37,6 +37,11 @@ export const shallowNodeTransformById = (
   return nodes
 }
 
+/**
+ * Calculates a thumbnail of the given image
+ * @param {Image} img Image to calculate thumbnail of
+ * @returns {Promise<ImageMemo>} Promise that resolves to an ImageMemo
+ */
 export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
   img: Image,
 ) => {
@@ -144,7 +149,7 @@ export function createNode(
   }
 }
 
-export function filterDependentNodes(
+export function getDependentNodeOperationsPairs(
   dependentEdges: Edge[],
   nodes: ImageFlowNode[],
   nodeFuture: ImageFlowNode,
@@ -202,6 +207,7 @@ export function getOutputNodes<TEdge extends Edge, TNode extends Node>(
   return nodes.filter((n) => !edges.find((e) => e.source === n.id))
 }
 
+// TODO refactor
 export function performOperation(
   edges: ImageFlowEdge[],
   getNodes: () => ImageFlowNode[],
@@ -261,12 +267,12 @@ export function performOperation(
               setNodes((prev) => deepSetNodeMemoById(prev, nodeId, out))
 
               const dependentEdges = filterDependentEdges(edges, nodeId)
-              const dependentNodes = filterDependentNodes(
+              const dependentPairs = getDependentNodeOperationsPairs(
                 dependentEdges,
                 getNodes(),
                 nodeFuture,
               )
-              performOperation(edges, getNodes, setNodes, ...dependentNodes)
+              performOperation(edges, getNodes, setNodes, ...dependentPairs)
             })
         })
         .catch((e) => {
@@ -299,4 +305,30 @@ function traceOperation(
     hasInputs ? '->' + parentThumbnailDigest : '',
     '->' + outDigest,
   )
+}
+
+/**
+ * Returns nodes that are descendants of the node with the given id
+ * @param {ImageFlowNode[]} nodes Nodes of a graph
+ * @param {ImageFlowEdge[]} edges Edges of a graph
+ * @param {string} nodeId Id of a node
+ * @returns {ImageFlowNode[]} Nodes that are descendants of the node with the given id
+ */
+export function getDescendants(
+  nodes: ImageFlowNode[],
+  edges: ImageFlowEdge[],
+  nodeId: string | undefined,
+): ImageFlowNode[] {
+  if (nodeId === undefined) return []
+
+  const directDescendantEdges = edges.filter((e) => e.source === nodeId)
+  const directDescendantNodes = directDescendantEdges
+    .map((e) => nodes.find((n) => n.id === e.target))
+    .filter((n): n is ImageFlowNode => n !== undefined)
+
+  const descendantNodes = directDescendantNodes.flatMap((n) =>
+    getDescendants(nodes, edges, n.id),
+  )
+
+  return [...directDescendantNodes, ...descendantNodes]
 }
