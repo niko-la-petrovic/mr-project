@@ -5,7 +5,6 @@ import 'reactflow/dist/style.css'
 import {
   ImageFlowData,
   ImageFlowEdgeData,
-  ImageFlowNode,
   ImageFlowNodeTypes,
 } from '@/types/domain'
 import ReactFlow, {
@@ -17,19 +16,16 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow'
-import {
-  getInputNodes,
-  getOutputNodes,
-  performOperation,
-} from '@/services/nodeOps'
-import { initialEdges, initialNodes } from '@/mock_data/imageFlow'
-import { useCallback, useEffect, useMemo } from 'react'
+import { getMemolessInputNodes, getOutputNodes } from '@/services/nodeOps'
+import { initialEdges, initialNodes } from '@/data/mock/imageFlow'
+import { useCallback, useMemo } from 'react'
 
 import { CustomImageFlowNode } from '@/components/graph/customImageFlowNode'
 import FlowToolbar from '@/components/menus/flowToolbar'
 import { Inter } from 'next/font/google'
 import { getImageUrlAsync } from '@/services/imageOps'
 import { saveBlobToFile } from '@/services/saveFile'
+import { useImageFlow } from '@/hooks/useImageFlow'
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -59,38 +55,8 @@ export default function Home() {
     })
   }, [edges, nodes])
 
-  // TODO document
   // render the graph on start once
-  useEffect(() => {
-    setEdges((prevEdges) => {
-      setNodes((prevNodes) => {
-        // TODO refactor this inner function
-        // make local copy of nodes
-        let localNodes = prevNodes.map((n) => ({ ...n }))
-        const setLocalNodes = (
-          updaterFunction: (nodes: ImageFlowNode[]) => ImageFlowNode[],
-        ) => {
-          localNodes = updaterFunction(localNodes)
-          setNodes(localNodes)
-        }
-
-        // get input nodes without memo
-        const inputNodes = getInputNodes(prevEdges, localNodes).filter(
-          (n) => n.data.content?.memo === undefined,
-        )
-        // only perform operation if there are input nodes
-        inputNodes.length > 0 &&
-          performOperation(
-            prevEdges,
-            () => localNodes,
-            setLocalNodes,
-            ...inputNodes.map((n) => ({ node: n })),
-          )
-        return localNodes
-      })
-      return prevEdges
-    })
-  }, [setEdges, setNodes])
+  useImageFlow(setEdges, setNodes, getMemolessInputNodes)
 
   const onConnect = useCallback(
     (params: Connection) => setEdges((e) => addEdge(params, e)),

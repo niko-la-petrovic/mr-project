@@ -1,3 +1,4 @@
+import { AiFillDelete, AiOutlineDownload } from 'react-icons/ai'
 import { Handle, Position, useReactFlow } from 'reactflow'
 import {
   ImageFlowData,
@@ -5,7 +6,6 @@ import {
   ImageFlowNodeProps,
 } from '@/types/domain'
 
-import { AiOutlineDownload } from 'react-icons/ai'
 import { IconButton } from '../buttons/iconButton'
 import Image from 'next/legacy/image'
 import Input from '../inputs/input'
@@ -37,6 +37,12 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
     downloadNodeImage(image, id)
   }, [id, image])
 
+  const onDeleteImage = useCallback(() => {
+    console.debug('delete node')
+    setNodes((prevNodes) => prevNodes.filter((n) => n.id !== id))
+    // TODO trigger re-calculation of dependent nodes
+  }, [setNodes, id])
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -63,6 +69,9 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
                     className="text-lg"
                     onClick={onDownloadImage}
                   />
+                </IconButton>
+                <IconButton>
+                  <AiFillDelete className="text-lg" onClick={onDeleteImage} />
                 </IconButton>
               </div>
             )}

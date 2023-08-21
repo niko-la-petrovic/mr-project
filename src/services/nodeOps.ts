@@ -85,6 +85,23 @@ export function shallowSetNodeMemo(node: ImageFlowNode, memo: ImageMemo) {
   return node
 }
 
+/**
+ * Returns nodes that have no memo
+ * @param {ImageFlowNode[]} nodes Nodes to filter
+ * @returns {ImageFlowNode[]} Nodes that have no memo
+ */
+export function getOnlyMemolessNodes(nodes: ImageFlowNode[]): ImageFlowNode[] {
+  return nodes.filter((n) => n.data.content?.memo === undefined)
+}
+
+export function getMemolessInputNodes(
+  nodes: ImageFlowNode[],
+  edges: ImageFlowEdge[],
+): ImageFlowNode[] {
+  const inputNodes = getInputNodes(edges, nodes)
+  return getOnlyMemolessNodes(inputNodes)
+}
+
 export function shallowSetNodeMemoById(
   nodes: ImageFlowNode[],
   nodeId: string,
