@@ -6,6 +6,7 @@ import {
   ImageFlowNodeProps,
 } from '@/types/domain'
 
+import { GridLoader } from 'react-spinners'
 import { IconButton } from '../buttons/iconButton'
 import Image from 'next/legacy/image'
 import Input from '../inputs/input'
@@ -63,9 +64,9 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
             </div>
           </>
         ) : (
-          <div className="">
-            {/* TODO loader */}
-            <span>No flow yet</span>
+          <div className="flex flex-col gap-4 justify-center items-center">
+            <span className="text-gray-500">No flow yet</span>
+            <GridLoader color="#217bad" />
           </div>
         )}
         <div className="flex items-center gap-2">
