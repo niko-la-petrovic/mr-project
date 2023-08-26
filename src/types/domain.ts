@@ -33,8 +33,9 @@ export interface DoubleImageFunction<TImage = Image> {
   (image1: TImage, image2: TImage): OperationReturnType<TImage>
 }
 
-export interface ImageFunction<TImage = Image> {
-  (images: TImage[]): OperationReturnType<TImage>
+export interface Operation<TImage = Image> {
+  key: string
+  function: (images: TImage[]) => OperationReturnType<TImage>
 }
 
 export interface Previewable {
@@ -43,10 +44,13 @@ export interface Previewable {
 
 export type NonPreviewable<T> = Omit<T, keyof Previewable>
 
+export type ImageFunctionParams = (number | boolean | string | object)[]
+
 export interface MemoizedImageFunction<TImage = Image, TMemoImage = ImageMemo>
   extends Previewable {
   memo?: TMemoImage | null
-  operation?: ImageFunction<TImage>
+  operation?: Operation<TImage>
+  operationParams?: ImageFunctionParams
 }
 
 // TODO intersect/union to make content required

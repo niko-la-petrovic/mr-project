@@ -1,11 +1,14 @@
 import {
   DoubleImageFunction,
   Image,
+  ImageFunctionParams,
+  Operation,
   OperationReturnType,
   SingleImageFunction,
 } from '@/types/domain'
 
 import Jimp from 'jimp'
+import { curry } from 'lodash'
 
 export function PicsumSourceOperation(): OperationReturnType {
   return Jimp.read('https://picsum.photos/200')
@@ -108,23 +111,55 @@ export function tooFewArgumentsPromise() {
   return Promise.reject('Too few arguments')
 }
 
-// TODO check why this is firing even though it seems like insufficient argument
-// TODO also this did work for a second, but it didnt seem to perform the right operation
-// TODO debug this issue and see whats happening
 const tooManyArgumentsPromise = () => Promise.reject('Too many arguments')
 
 const firstImage = (images: Image[]): Image => {
   return images[0]
 }
 
-// TODO update
-export const operations = {
-  picsumSourceOperation: PicsumSourceOperation,
-  gaussianOperation: GaussianOperation,
-  invertOperation: InvertOperation,
-  blurOperation: BlurOperation,
-}
-
 export function getImageUrlAsync(image: Image): Promise<string> {
   return image.getBase64Async(Jimp.MIME_PNG)
+}
+
+export enum OperationName {
+  PicsumSource = 'picsumSource',
+  Gaussian = 'gaussian',
+  Invert = 'invert',
+  Blur = 'blur',
+  Grayscale = 'grayscale',
+  Sepia = 'sepia',
+  Brightness = 'brightness',
+  Composite = 'composite',
+}
+
+export const OperationMap = {
+  [OperationName.PicsumSource]: PicsumSourceOperation,
+  [OperationName.Gaussian]: GaussianOperation,
+  [OperationName.Invert]: InvertOperation,
+  [OperationName.Blur]: BlurOperation,
+  [OperationName.Grayscale]: GrayscaleOperation,
+  [OperationName.Sepia]: SepiaOperation,
+  [OperationName.Brightness]: BrightnessOperation,
+  [OperationName.Composite]: CompositeOperation,
+}
+
+export function OperationConversion(
+  operationName: OperationName,
+  operationArgs?: ImageFunctionParams,
+): Operation<Image> {
+  console.group(operationName)
+  console.debug('args', operationArgs)
+  const arglessOperation = OperationMap[operationName]
+  console.debug('operation', arglessOperation)
+  console.groupEnd()
+
+  const curriedArglessOperation = curry(arglessOperation)
+  const operation =
+    ((operationArgs && operationArgs.length) ?? 0) > 0
+      ? curry(arglessOperation)(...(operationArgs ?? []))
+      : curriedArglessOperation
+  return {
+    key: operationName,
+    function: operation,
+  }
 }

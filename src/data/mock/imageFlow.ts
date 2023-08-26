@@ -1,21 +1,12 @@
 import {
-  BrightnessOperation,
-  CompositeOperation,
-  GaussianOperation,
-  GrayscaleOperation,
-  InvertOperation,
-  PicsumSourceOperation,
-  SepiaOperation,
-} from '@/services/imageOps'
-import {
   ImageFlowEdge,
   ImageFlowNode,
   ImageFlowNodeTypes,
   nameof,
 } from '@/types/domain'
 
+import { OperationName } from '@/services/imageOps'
 import { createNode } from '@/services/nodeOps'
-import { curry } from 'lodash'
 
 const picsumSource = createNode(
   '1',
@@ -25,7 +16,8 @@ const picsumSource = createNode(
     y: 0,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  PicsumSourceOperation,
+  OperationName.PicsumSource,
+  undefined,
   true,
 )
 
@@ -37,8 +29,8 @@ const gaussianBlur = createNode(
     y: 450,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  curry(GaussianOperation)(3),
-  true,
+  OperationName.Gaussian,
+  [3],
 )
 
 const invert = createNode(
@@ -49,7 +41,8 @@ const invert = createNode(
     y: 450,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  InvertOperation,
+  OperationName.Invert,
+  undefined,
   true,
 )
 
@@ -62,7 +55,8 @@ const grayscale = createNode(
   },
   // TODO make this default
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  GrayscaleOperation,
+  OperationName.Grayscale,
+  undefined,
   true,
 )
 
@@ -74,7 +68,8 @@ const sepia = createNode(
     y: 900,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  SepiaOperation,
+  OperationName.Sepia,
+  undefined,
   true,
 )
 
@@ -86,7 +81,8 @@ const brightness = createNode(
     y: 900,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  curry(BrightnessOperation)(0.5),
+  OperationName.Brightness,
+  [0.5],
   true,
 )
 
@@ -98,7 +94,8 @@ const inversion1 = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  InvertOperation,
+  OperationName.Invert,
+  undefined,
   true,
 )
 
@@ -110,7 +107,8 @@ const composite = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  curry(CompositeOperation)(0.5, 1, { x: 0, y: 0 }),
+  OperationName.Composite,
+  [0.5, 1, { x: 0, y: 0 }],
   true,
 )
 
@@ -122,7 +120,8 @@ const picsumSource1 = createNode(
     y: 1350,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  PicsumSourceOperation,
+  OperationName.PicsumSource,
+  undefined,
   true,
 )
 

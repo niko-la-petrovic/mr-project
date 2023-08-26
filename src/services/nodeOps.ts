@@ -2,10 +2,11 @@ import { Edge, Node, XYPosition } from 'reactflow'
 import {
   Image,
   ImageFlowEdge,
-  ImageFunction,
+  ImageFunctionParams,
   ImageMemo,
   OperationInputPair,
 } from '@/types/domain'
+import { OperationConversion, OperationName } from './imageOps'
 
 import { ImageFlowNode } from '@/types/domain'
 import Jimp from 'jimp'
@@ -132,7 +133,8 @@ export function createNode(
   label: string,
   position: XYPosition,
   type?: string,
-  operation?: ImageFunction,
+  operationName?: OperationName,
+  operationArgs?: ImageFunctionParams,
   showPreview?: boolean,
 ): ImageFlowNode {
   return {
@@ -141,7 +143,8 @@ export function createNode(
     data: {
       label,
       content: {
-        operation,
+        operation:
+          operationName && OperationConversion(operationName, operationArgs),
         showPreview,
       },
     },
@@ -251,7 +254,8 @@ export function performOperation(
     nodeOperation &&
       !nodeMemo &&
       (hasUpdatedParent ? hasUpdatedParentImage : true) &&
-      nodeOperation(inputImages)
+      nodeOperation
+        .function(inputImages)
         .then((img) => {
           img &&
             calculateThumbnail(img).then((out) => {
