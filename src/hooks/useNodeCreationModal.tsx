@@ -22,6 +22,11 @@ export default function useNodeCreationModal() {
         type: NodeCreationModalActionType.SelectOperationArgs,
         operationArgs,
       }),
+    setNodeLabel: (nodeLabel: string) =>
+      dispatch({
+        type: NodeCreationModalActionType.SetNodeLabel,
+        nodeLabel,
+      }),
   }
 }
 
@@ -29,6 +34,7 @@ export type NodeCreationModalState = {
   isOpen: boolean
   selectedOperation: OperationName
   selectedOperationArgs: ImageFunctionParams
+  nodeLabel: string
 }
 
 export enum NodeCreationModalActionType {
@@ -36,6 +42,7 @@ export enum NodeCreationModalActionType {
   CloseModal = 'closeModal',
   SelectOperation = 'selectOperation',
   SelectOperationArgs = 'selectOperationArgs',
+  SetNodeLabel = 'setNodeLabel',
 }
 
 export type NodeCreationAction =
@@ -53,11 +60,16 @@ export type NodeCreationAction =
       type: NodeCreationModalActionType.SelectOperationArgs
       operationArgs: ImageFunctionParams
     }
+  | {
+      type: NodeCreationModalActionType.SetNodeLabel
+      nodeLabel: string
+    }
 
 const initialState: NodeCreationModalState = {
   isOpen: false,
   selectedOperation: OperationName.PicsumSource,
   selectedOperationArgs: [],
+  nodeLabel: '',
 }
 
 export function NodeCreationModalReducer(
@@ -85,6 +97,11 @@ export function NodeCreationModalReducer(
         ...state,
         selectedOperationArgs: action.operationArgs,
       }
+    case NodeCreationModalActionType.SetNodeLabel:
+      return {
+        ...state,
+        nodeLabel: action.nodeLabel,
+      }
     default:
       throw new Error('Invalid action type')
   }
@@ -102,6 +119,7 @@ export const NodeCreationModalContext =
     closeModal: noop,
     selectOperation: noop,
     selectOperationArgs: noop,
+    setNodeLabel: noop,
   })
 
 export const NodeCreationModalProvider = NodeCreationModalContext.Provider

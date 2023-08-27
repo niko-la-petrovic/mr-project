@@ -1,3 +1,7 @@
 {
-  "files.eol": "\n"
+  "files.eol": "\n",
+  "tailwindCSS.experimental.classRegex": [
+    "(?:const|let)\\s+\\w[\\w\\d]*\\s*=\\s*['\\\"](.*?)['\\\"]",
+    "[Cc]lass(?:[nN]ame)?\\s*=\\s*['\\\"](.*?)['\\\"]"
+  ]
 }

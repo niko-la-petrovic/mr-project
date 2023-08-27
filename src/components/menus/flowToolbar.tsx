@@ -20,7 +20,7 @@ export default function FlowToolbar({
 }: FlowToolbarProps) {
   const { openModal } = useContext(NodeCreationModalContext)
   return (
-    <div className="z-10 flex justify-start gap-1">
+    <div className="z-10 flex justify-start gap-1 drop-shadow-lg">
       {/* TODO add shortcut descriptors to each of these */}
       <IconButton tooltip={{ id: 'add', content: 'Add' }} onClick={openModal}>
         <AiOutlinePlusSquare className={toolbarIconClass} />

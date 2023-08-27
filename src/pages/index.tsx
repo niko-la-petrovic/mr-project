@@ -23,14 +23,16 @@ import useNodeCreationModal, {
   NodeCreationModalProvider,
 } from '@/hooks/useNodeCreationModal'
 
+import AppTitle from '@/components/nonInteractive/appTitle'
 import { CustomImageFlowNode } from '@/components/graph/customImageFlowNode'
 import FlowToolbar from '@/components/menus/flowToolbar'
 import { Inter } from 'next/font/google'
+import NodeCreationModal from '@/components/menus/nodeCreationModal'
 import { getImageUrlAsync } from '@/services/imageOps'
 import { saveBlobToFile } from '@/services/saveFile'
 import { useImageFlow } from '@/hooks/useImageFlow'
 
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
+export const font = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
 const imageFlowNodeTypes: ImageFlowNodeTypes = {
   imageFlowNode: CustomImageFlowNode,
@@ -70,13 +72,11 @@ export default function Home() {
   )
 
   return (
-    <div className={inter.className}>
+    <div className={font.className}>
       <NodeCreationModalProvider value={nodeCreationModalProvider}>
         {/* TOOD Remove full padding around the whole thing */}
         <div className="flex flex-col justify-center gap-4 p-4">
-          <div className="flex items-center justify-center">
-            <span className="text-4xl font-light">Image Flow</span>
-          </div>
+          <AppTitle />
           {/* TODO use panel as toolbar on mobile? */}
           <FlowToolbar downloadOutputImages={downloadOutputImages} />
           <div className="mt-0 border border-black dark:border-white">
@@ -96,6 +96,7 @@ export default function Home() {
             </div>
           </div>
         </div>
+        <NodeCreationModal />
       </NodeCreationModalProvider>
     </div>
   )
