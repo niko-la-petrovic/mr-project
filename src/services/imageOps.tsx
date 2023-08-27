@@ -79,13 +79,14 @@ export function BrightnessOperation(
 export function CompositeOperation(
   opacityDestination: number,
   opacitySource: number,
-  position: { x: number; y: number },
+  positionX: number,
+  positionY: number,
   images: Image[],
 ): OperationReturnType {
   return DoubleImageOperation(
     (image1, image2) =>
       Promise.resolve(
-        image1.composite(image2, position.x, position.y, {
+        image1.composite(image2, positionX, positionY, {
           mode: Jimp.BLEND_DESTINATION_OVER,
           opacitySource,
           opacityDest: opacityDestination,

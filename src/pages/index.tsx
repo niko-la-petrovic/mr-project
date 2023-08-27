@@ -55,6 +55,8 @@ export default function Home() {
     })
   }, [edges, nodes])
 
+  // TODO add button to restart flow from the input nodes
+
   // render the graph on start once
   useImageFlow(setEdges, setNodes, getMemolessInputNodes)
 

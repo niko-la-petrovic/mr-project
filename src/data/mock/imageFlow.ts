@@ -108,7 +108,7 @@ const composite = createNode(
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
   OperationName.Composite,
-  [0.5, 1, { x: 0, y: 0 }],
+  [0.5, 1, 0, 0],
   true,
 )
 
