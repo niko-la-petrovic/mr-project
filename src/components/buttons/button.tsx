@@ -20,7 +20,7 @@ export function Button({ children, tooltip, ...props }: ButtonProps) {
   return (
     <>
       <button
-        className="px-4 py-2 rounded-md bg-white dark:bg-slate-800 hover:bg-primary-200 active:bg-primary-400 dark:hover:bg-primary-700 dark:active:bg-primary-900 transition-colors duration-200 ease-in-out"
+        className="rounded-md bg-white px-4 py-2 transition-colors duration-200 ease-in-out hover:bg-primary-200 active:bg-primary-400 dark:bg-slate-800 dark:hover:bg-primary-700 dark:active:bg-primary-900"
         {...props}
         {...(tooltipProvided
           ? {

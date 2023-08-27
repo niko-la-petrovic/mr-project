@@ -67,12 +67,12 @@ export default function Home() {
     <div className={inter.className}>
       {/* TOOD Remove full padding around the whole thing */}
       <div className="flex flex-col justify-center gap-4 p-4">
-        <div className="flex justify-center items-center">
+        <div className="flex items-center justify-center">
           <span className="text-4xl font-light">Image Flow</span>
         </div>
         {/* TODO use panel as toolbar on mobile? */}
         <FlowToolbar downloadOutputImages={downloadOutputImages} />
-        <div className="border border-black dark:border-white mt-0">
+        <div className="mt-0 border border-black dark:border-white">
           <div className="h-screen w-screen">
             <ReactFlow
               nodes={nodes}

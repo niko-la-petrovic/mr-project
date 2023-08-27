@@ -17,7 +17,7 @@ export default function FlowToolbar({
   downloadOutputImages,
 }: FlowToolbarProps) {
   return (
-    <div className="flex justify-start gap-1 z-10">
+    <div className="z-10 flex justify-start gap-1">
       {/* TODO add shortcut descriptors to each of these */}
       <IconButton tooltip={{ id: 'add', content: 'Add' }}>
         <AiOutlinePlusSquare className={toolbarIconClass} />

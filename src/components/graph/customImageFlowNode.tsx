@@ -47,16 +47,16 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   return (
     <>
       <Handle type="target" position={Position.Top} />
-      <div className="flex flex-col justify-center items-center p-4 bg-white dark:bg-slate-900 relative rounded gap-4 border-2 border-gray-400 hover:border-primary-600 transition-all duration-300 ease-in-out">
-        <span className="absolute top-0 left-0 text-xs font-semibold pl-2 pt-2 opacity-20">
+      <div className="relative flex flex-col items-center justify-center gap-4 rounded border-2 border-gray-400 bg-white p-4 transition-all duration-300 ease-in-out hover:border-primary-600 dark:bg-slate-900">
+        <span className="absolute left-0 top-0 pl-2 pt-2 text-xs font-semibold opacity-20">
           {id}
         </span>
         <Input type="text" value={data.label} onChange={onNodeLabelChange} />
         {showPreview && memo ? (
           <>
-            <div className="s-64 relative">
+            <div className="relative s-64">
               <Image
-                className="absolute top-0 left-0 w-full h-full object-contain"
+                className="absolute left-0 top-0 h-full w-full object-contain"
                 src={memo.thumbnail}
                 alt=""
                 layout="fill"
@@ -64,7 +64,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
             </div>
           </>
         ) : (
-          <div className="flex flex-col gap-4 justify-center items-center">
+          <div className="flex flex-col items-center justify-center gap-4">
             <span className="text-gray-500">No flow yet</span>
             <GridLoader color="#217bad" />
           </div>
