@@ -10,6 +10,7 @@ import { GridLoader } from 'react-spinners'
 import { IconButton } from '../buttons/iconButton'
 import Image from 'next/legacy/image'
 import Input from '../inputs/input'
+import NodeParamEditor from '../nodeParams/nodeParamEditor'
 import { downloadNodeImage } from '@/services/downloadNodeImage'
 import { updateNodeLabel } from '@/services/updateNodeLabel'
 import { useCallback } from 'react'
@@ -52,6 +53,8 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           {id}
         </span>
         <Input type="text" value={data.label} onChange={onNodeLabelChange} />
+        {/* TODO show UI for adjusting params */}
+        <NodeParamEditor />
         {showPreview && memo ? (
           <>
             <div className="relative s-64">

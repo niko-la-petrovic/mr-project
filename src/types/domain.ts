@@ -1,6 +1,7 @@
 import { Edge, Node, NodeProps } from 'reactflow'
 
 import Jimp from 'jimp/*'
+import { OperationName } from '@/services/imageOps'
 import { ReactNode } from 'react'
 
 // TODO create a graph type
@@ -34,7 +35,7 @@ export interface DoubleImageFunction<TImage = Image> {
 }
 
 export interface Operation<TImage = Image> {
-  key: string
+  key: OperationName
   function: (images: TImage[]) => OperationReturnType<TImage>
 }
 

@@ -19,6 +19,9 @@ import ReactFlow, {
 import { getMemolessInputNodes, getOutputNodes } from '@/services/nodeOps'
 import { initialEdges, initialNodes } from '@/data/mock/imageFlow'
 import { useCallback, useMemo } from 'react'
+import useNodeCreationModal, {
+  NodeCreationModalProvider,
+} from '@/hooks/useNodeCreationModal'
 
 import { CustomImageFlowNode } from '@/components/graph/customImageFlowNode'
 import FlowToolbar from '@/components/menus/flowToolbar'
@@ -40,6 +43,7 @@ export default function Home() {
   const [edges, setEdges, onEdgesChange] =
     useEdgesState<ImageFlowEdgeData>(initialEdges)
 
+  const nodeCreationModalProvider = useNodeCreationModal()
   // TODO use onnx runtime
 
   const downloadOutputImages = useCallback(() => {
@@ -67,30 +71,32 @@ export default function Home() {
 
   return (
     <div className={inter.className}>
-      {/* TOOD Remove full padding around the whole thing */}
-      <div className="flex flex-col justify-center gap-4 p-4">
-        <div className="flex items-center justify-center">
-          <span className="text-4xl font-light">Image Flow</span>
-        </div>
-        {/* TODO use panel as toolbar on mobile? */}
-        <FlowToolbar downloadOutputImages={downloadOutputImages} />
-        <div className="mt-0 border border-black dark:border-white">
-          <div className="h-screen w-screen">
-            <ReactFlow
-              nodes={nodes}
-              edges={edges}
-              nodeTypes={nodeTypes}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
-              onConnect={onConnect}
-            >
-              <Controls />
-              <MiniMap zoomable pannable />
-              <Background gap={12} size={1} />
-            </ReactFlow>
+      <NodeCreationModalProvider value={nodeCreationModalProvider}>
+        {/* TOOD Remove full padding around the whole thing */}
+        <div className="flex flex-col justify-center gap-4 p-4">
+          <div className="flex items-center justify-center">
+            <span className="text-4xl font-light">Image Flow</span>
+          </div>
+          {/* TODO use panel as toolbar on mobile? */}
+          <FlowToolbar downloadOutputImages={downloadOutputImages} />
+          <div className="mt-0 border border-black dark:border-white">
+            <div className="h-screen w-screen">
+              <ReactFlow
+                nodes={nodes}
+                edges={edges}
+                nodeTypes={nodeTypes}
+                onNodesChange={onNodesChange}
+                onEdgesChange={onEdgesChange}
+                onConnect={onConnect}
+              >
+                <Controls />
+                <MiniMap zoomable pannable />
+                <Background gap={12} size={1} />
+              </ReactFlow>
+            </div>
           </div>
         </div>
-      </div>
+      </NodeCreationModalProvider>
     </div>
   )
 }
