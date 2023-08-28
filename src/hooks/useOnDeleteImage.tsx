@@ -3,7 +3,7 @@ import { ImageFlowEdge, ImageFlowNode } from '@/types/domain'
 
 import { getDescendants } from '@/services/nodeOps'
 
-export function useOnDeleteImage(
+export function useOnNodeDeleteImage(
   setNodes: Dispatch<SetStateAction<ImageFlowNode[]>>,
   getEdges: () => ImageFlowEdge[],
   nodeId: string,
@@ -24,10 +24,11 @@ export function useOnDeleteImage(
         nodeToRemove,
       )
 
-      const updatedNodes = removeNodeAndUpdateDescendants(
+      const updatedNodes = mapNodeAndUpdateDescendants(
         prevNodes,
         nodeId,
         descendants,
+        () => undefined,
       )
 
       return updatedNodes
@@ -35,14 +36,15 @@ export function useOnDeleteImage(
   }, [setNodes, getEdges, nodeId])
 }
 
-export function removeNodeAndUpdateDescendants(
+export function mapNodeAndUpdateDescendants(
   prevNodes: ImageFlowNode[],
   nodeId: string,
   descendants: ImageFlowNode[],
+  mapNode: (n: ImageFlowNode) => ImageFlowNode | undefined,
 ) {
   return prevNodes
     .map((n) => {
-      if (n.id === nodeId) return undefined
+      if (n.id === nodeId) return mapNode(n)
 
       const foundInDescendants = descendants.find((d) => d.id === n.id)
       if (foundInDescendants) return foundInDescendants

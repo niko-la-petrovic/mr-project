@@ -4,7 +4,6 @@ import {
   ImageFlowData,
   ImageFlowEdgeData,
   ImageFlowNodeProps,
-  ImageFunctionParams,
 } from '@/types/domain'
 import Input, { InputChangeEvent } from '../inputs/input'
 
@@ -15,7 +14,8 @@ import NodeParamEditor from '../nodeParams/nodeParamEditor'
 import { downloadNodeImage } from '@/services/downloadNodeImage'
 import { updateNodeLabel } from '@/services/updateNodeLabel'
 import { useCallback } from 'react'
-import { useOnDeleteImage } from '@/hooks/useOnDeleteImage'
+import { useOnNodeArgsChanged } from '@/hooks/useOnNodeArgsChanged'
+import { useOnNodeDeleteImage } from '@/hooks/useOnDeleteImage'
 
 // TODO make into container component
 
@@ -45,28 +45,9 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
     downloadNodeImage(image, id)
   }, [id, image])
 
-  const onDeleteImage = useOnDeleteImage(setNodes, getEdges, id)
+  const onDeleteImage = useOnNodeDeleteImage(setNodes, getEdges, id)
 
-  // TODO refactor this into a hook
-  const onArgsChanged = (value: ImageFunctionParams) => {
-    setNodes((prevNodes) =>
-      prevNodes.map((node) => {
-        if (node.id === id) {
-          return {
-            ...node,
-            data: {
-              ...node.data,
-              content: {
-                ...node.data.content,
-                operationArgs: value,
-              },
-            },
-          }
-        }
-        return node
-      }),
-    )
-  }
+  const onArgsChanged = useOnNodeArgsChanged(setNodes, id)
 
   return (
     <>
@@ -76,8 +57,6 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           {id}
         </span>
         <Input type="text" value={data.label} onChange={onNodeLabelChange} />
-        {/* TODO show UI for adjusting params */}
-        {/* TODO issue rerender */}
         {operationName && operationArgs && (
           <NodeParamEditor
             operationName={operationName}
