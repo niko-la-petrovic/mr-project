@@ -1,6 +1,7 @@
+import Input, { InputChangeEvent } from '../inputs/input'
+
 import { AiOutlineClose } from 'react-icons/ai'
 import { IconButton } from '../buttons/iconButton'
-import Input from '../inputs/input'
 import Modal from 'react-modal'
 import { NodeCreationModalContext } from '@/hooks/useNodeCreationModal'
 import { OperationName } from '@/services/imageOps'
@@ -14,7 +15,7 @@ export default function NodeCreationModal() {
     NodeCreationModalContext,
   )
 
-  const onInput = (value: string) => setNodeLabel(value)
+  const onInput = (e: InputChangeEvent) => setNodeLabel(e.target.value)
 
   return (
     <>

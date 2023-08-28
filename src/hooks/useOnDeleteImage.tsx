@@ -18,27 +18,47 @@ export function useOnDeleteImage(
       }
 
       // clear memoized images from descendants
-      const descendants = getDescendants(
+      const descendants = clearDescendantMemos(
         prevNodes,
-        getEdges(),
-        nodeToRemove.id,
-      ).map((n) => ({
-        ...n,
-        data: { ...n.data, content: { ...n.data.content, memo: undefined } },
-      }))
+        getEdges,
+        nodeToRemove,
+      )
 
-      const updatedNodes = prevNodes
-        .map((n) => {
-          if (n.id === nodeId) return undefined
-
-          const foundInDescendants = descendants.find((d) => d.id === n.id)
-          if (foundInDescendants) return foundInDescendants
-
-          return n
-        })
-        .filter((n): n is ImageFlowNode => !!n)
+      const updatedNodes = removeNodeAndUpdateDescendants(
+        prevNodes,
+        nodeId,
+        descendants,
+      )
 
       return updatedNodes
     })
   }, [setNodes, getEdges, nodeId])
+}
+
+export function removeNodeAndUpdateDescendants(
+  prevNodes: ImageFlowNode[],
+  nodeId: string,
+  descendants: ImageFlowNode[],
+) {
+  return prevNodes
+    .map((n) => {
+      if (n.id === nodeId) return undefined
+
+      const foundInDescendants = descendants.find((d) => d.id === n.id)
+      if (foundInDescendants) return foundInDescendants
+
+      return n
+    })
+    .filter((n): n is ImageFlowNode => !!n)
+}
+
+export function clearDescendantMemos(
+  prevNodes: ImageFlowNode[],
+  getEdges: () => ImageFlowEdge[],
+  parentNode: ImageFlowNode,
+): ImageFlowNode[] {
+  return getDescendants(prevNodes, getEdges(), parentNode.id).map((n) => ({
+    ...n,
+    data: { ...n.data, content: { ...n.data.content, memo: undefined } },
+  }))
 }
