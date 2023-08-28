@@ -1,3 +1,4 @@
+// TODO use conditional type depending on the value of the type
 export interface InputProps {
   value: string
   type: 'text' | 'number'

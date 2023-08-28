@@ -146,6 +146,7 @@ export function createNode(
         operation:
           operationName && OperationConversion(operationName, operationArgs),
         showPreview,
+        operationArgs,
       },
     },
     position,

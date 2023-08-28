@@ -160,16 +160,7 @@ export function OperationConversion(
       ? curry(arglessOperation)(...(operationArgs ?? []))
       : curriedArglessOperation
   return {
-    key: operationName,
+    name: operationName,
     function: operation,
   }
-}
-
-export type PicsumOperationParams = never[]
-export type GaussianOperationParams = [number]
-
-// TODO fill the rest of them in too
-export const OperationParamsSchema = {
-  // [OperationName.PicsumSource]: ,
-  // [OperationName.Gaussian]: ,
 }

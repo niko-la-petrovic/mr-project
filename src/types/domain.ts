@@ -35,7 +35,7 @@ export interface DoubleImageFunction<TImage = Image> {
 }
 
 export interface Operation<TImage = Image> {
-  key: OperationName
+  name: OperationName
   function: (images: TImage[]) => OperationReturnType<TImage>
 }
 
@@ -51,7 +51,7 @@ export interface MemoizedImageFunction<TImage = Image, TMemoImage = ImageMemo>
   extends Previewable {
   memo?: TMemoImage | null
   operation?: Operation<TImage>
-  operationParams?: ImageFunctionParams
+  operationArgs?: ImageFunctionParams
 }
 
 // TODO intersect/union to make content required

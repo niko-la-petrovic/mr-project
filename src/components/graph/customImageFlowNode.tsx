@@ -4,6 +4,7 @@ import {
   ImageFlowData,
   ImageFlowEdgeData,
   ImageFlowNodeProps,
+  ImageFunctionParams,
 } from '@/types/domain'
 
 import { GridLoader } from 'react-spinners'
@@ -28,7 +29,8 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
   const showPreview = content?.showPreview
   const memo = content?.memo
   const image = data.content?.memo?.image
-
+  const operationName = data.content?.operation?.name
+  const operationArgs = data.content?.operationArgs
   const onNodeLabelChange = useCallback(
     (label: string) => updateNodeLabel(id, label, setNodes),
     [id, setNodes],
@@ -45,6 +47,27 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
 
   const onDeleteImage = useOnDeleteImage(setNodes, getEdges, id)
 
+  // TODO refactor this into a hook
+  const onValueChange = (value: ImageFunctionParams) => {
+    setNodes((prevNodes) =>
+      prevNodes.map((node) => {
+        if (node.id === id) {
+          return {
+            ...node,
+            data: {
+              ...node.data,
+              content: {
+                ...node.data.content,
+                operationArgs: value,
+              },
+            },
+          }
+        }
+        return node
+      }),
+    )
+  }
+
   return (
     <>
       <Handle type="target" position={Position.Top} />
@@ -54,7 +77,14 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
         </span>
         <Input type="text" value={data.label} onChange={onNodeLabelChange} />
         {/* TODO show UI for adjusting params */}
-        <NodeParamEditor />
+        {/* TODO issue rerender */}
+        {operationName && operationArgs && (
+          <NodeParamEditor
+            operationName={operationName}
+            value={operationArgs}
+            onValueChange={onValueChange}
+          />
+        )}
         {showPreview && memo ? (
           <>
             <div className="relative s-64">
