@@ -20,11 +20,12 @@ import { useOnNodeDeleteImage } from '@/hooks/useOnDeleteImage'
 // TODO make into container component
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
-  const { setNodes, getEdges } = useReactFlow<
+  const { setNodes, getEdges, getNode } = useReactFlow<
     ImageFlowData,
     ImageFlowEdgeData
   >()
-
+  const node = getNode(id)
+  if (!node) throw new Error('node not found')
   const content = data.content
   const showPreview = content?.showPreview
   const memo = content?.memo
@@ -47,7 +48,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
 
   const onDeleteImage = useOnNodeDeleteImage(setNodes, getEdges, id)
 
-  const onArgsChanged = useOnNodeArgsChanged(setNodes, id)
+  const onArgsChanged = useOnNodeArgsChanged(setNodes, getEdges, node)
 
   return (
     <>

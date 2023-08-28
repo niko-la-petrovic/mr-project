@@ -250,7 +250,7 @@ export function performOperation(
 
     const inputImages = clonedUpdatedParentImage
       ? [clonedUpdatedParentImage, ...parentNodesImages]
-      : []
+      : [...parentNodesImages]
 
     nodeOperation &&
       !nodeMemo &&

@@ -21,9 +21,10 @@ export function useOnNodeDeleteImage(
       const descendants = clearDescendantMemos(
         prevNodes,
         getEdges,
-        nodeToRemove,
+        nodeToRemove.id,
       )
 
+      // remove parent node and update descendants
       const updatedNodes = mapNodeAndUpdateDescendants(
         prevNodes,
         nodeId,
@@ -57,9 +58,9 @@ export function mapNodeAndUpdateDescendants(
 export function clearDescendantMemos(
   prevNodes: ImageFlowNode[],
   getEdges: () => ImageFlowEdge[],
-  parentNode: ImageFlowNode,
+  parentNodeId: string,
 ): ImageFlowNode[] {
-  return getDescendants(prevNodes, getEdges(), parentNode.id).map((n) => ({
+  return getDescendants(prevNodes, getEdges(), parentNodeId).map((n) => ({
     ...n,
     data: { ...n.data, content: { ...n.data.content, memo: undefined } },
   }))
