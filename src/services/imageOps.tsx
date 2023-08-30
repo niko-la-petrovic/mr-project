@@ -6,9 +6,11 @@ import {
   OperationReturnType,
   SingleImageFunction,
 } from '@/types/domain'
+import { thumbnailHeight, thumbnailWidth } from './nodeOps'
 
 import Jimp from 'jimp'
 import { curry } from 'lodash'
+import { inferenceSqueezeNet } from './onnx/predict'
 
 export function PicsumSourceOperation(): OperationReturnType {
   return Jimp.read('https://picsum.photos/200')
@@ -96,6 +98,41 @@ export function CompositeOperation(
   )
 }
 
+export function ClassifyImageOperation(images: Image[]): OperationReturnType {
+  return SingleImageOperation((image) => {
+    return new Promise((resolve, reject) => {
+      inferenceSqueezeNet(image).then((result) => {
+        console.debug(result)
+        return new Jimp(
+          thumbnailWidth,
+          thumbnailHeight,
+          0xffffff,
+          (err, image) => {
+            // TODO error handling
+            // TODO fix callback hell
+            if (err) reject(err)
+
+            // TODO fix font loading - read from .env
+            // also use webpack module to rewrite the path in the Inter.fnt file using a param from .env
+            return Jimp.loadFont(
+              'https://next-dev.nikola-petrovic.com/Inter.fnt',
+            ).then((font) => {
+              resolve(
+                image.print(
+                  font,
+                  0,
+                  thumbnailHeight / 2,
+                  result.prediction[0].name,
+                ),
+              )
+            })
+          },
+        )
+      })
+    })
+  }, images)
+}
+
 const moreThanOneArgument = (images: Image[]) => {
   return images.length > 1
 }
@@ -131,6 +168,7 @@ export enum OperationName {
   Sepia = 'sepia',
   Brightness = 'brightness',
   Composite = 'composite',
+  ClassifyImage = 'classifyImage',
 }
 
 export const OperationMap = {
@@ -142,6 +180,7 @@ export const OperationMap = {
   [OperationName.Sepia]: SepiaOperation,
   [OperationName.Brightness]: BrightnessOperation,
   [OperationName.Composite]: CompositeOperation,
+  [OperationName.ClassifyImage]: ClassifyImageOperation,
 }
 
 export function OperationConversion(

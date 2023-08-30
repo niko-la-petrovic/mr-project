@@ -38,6 +38,10 @@ export const shallowNodeTransformById = (
   return nodes
 }
 
+export const thumbnailWidth = 256
+export const thumbnailHeight = 256
+export const thumbnailQuality = 60
+
 /**
  * Calculates a thumbnail of the given image
  * @param {Image} img Image to calculate thumbnail of
@@ -49,8 +53,8 @@ export const calculateThumbnail: (img: Image) => Promise<ImageMemo> = (
   return new Promise((resolve, reject) => {
     img
       .clone()
-      .resize(256, 256)
-      .quality(60)
+      .resize(thumbnailWidth, thumbnailHeight)
+      .quality(thumbnailQuality)
       .getBase64Async(Jimp.MIME_JPEG)
       .catch((err) => {
         reject(err)

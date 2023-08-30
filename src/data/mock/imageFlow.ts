@@ -125,6 +125,19 @@ const picsumSource1 = createNode(
   true,
 )
 
+const classifyImage = createNode(
+  '10',
+  'Classify Image',
+  {
+    x: 1350,
+    y: 1350,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.ClassifyImage,
+  undefined,
+  true,
+)
+
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
   gaussianBlur,
@@ -135,7 +148,9 @@ export const initialNodes: ImageFlowNode[] = [
   inversion1,
   composite,
   picsumSource1,
+  classifyImage,
 ]
+
 export const initialEdges: ImageFlowEdge[] = [
   {
     id: 'e1-2',
@@ -176,5 +191,10 @@ export const initialEdges: ImageFlowEdge[] = [
     id: 'e1-8',
     source: picsumSource.id,
     target: composite.id,
+  },
+  {
+    id: 'e9-10',
+    source: picsumSource1.id,
+    target: classifyImage.id,
   },
 ]
