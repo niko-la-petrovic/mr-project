@@ -2,13 +2,14 @@ import { InferenceSession, Tensor } from 'onnxruntime-web'
 import { isTypedArray, reverse, sortBy, take } from 'lodash'
 
 import { Image } from '@/types/domain'
-import imageNetClasses from './imagenetClasses'
+import imageNetClasses from './imageNetClasses'
 import { imageToTensor } from './prepareImage'
 
 export async function inferenceSqueezeNet(
   image: Image,
 ): Promise<{ prediction: InferenceResult[]; inferenceTime: number }> {
-  const imageTensor = await imageToTensor(image, [1, 3, 224, 224])
+  const resizedImage = image.resize(224, 224)
+  const imageTensor = await imageToTensor(resizedImage, [1, 3, 224, 224])
   const [prediction, inferenceTime] = await runSequeezeNetModel(imageTensor)
 
   return { prediction, inferenceTime }

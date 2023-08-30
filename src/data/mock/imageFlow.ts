@@ -125,12 +125,64 @@ const picsumSource1 = createNode(
   true,
 )
 
-const classifyImage = createNode(
+const loadFromUrl = createNode(
   '10',
+  'Load From Url',
+  {
+    x: 450,
+    y: 0,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.LoadFromUrl,
+  ['https://farm4.staticflickr.com/3075/3168662394_7d7103de7d_z_d.jpg'],
+  true,
+)
+
+const classifyImage = createNode(
+  '11',
+  'Classify Image',
+  {
+    x: 900,
+    y: 0,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.ClassifyImage,
+  undefined,
+  true,
+)
+
+const loadOneAtRandomFromUrls = createNode(
+  '12',
+  'Load One At Random',
+  {
+    x: 1350,
+    y: 0,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.LoadOneAtRandomFromUrls,
+  [
+    [
+      'https://i.imgur.com/CzXTtJV.jpg',
+      'https://i.imgur.com/OB0y6MR.jpg',
+      'https://farm2.staticflickr.com/1533/26541536141_41abe98db3_z_d.jpg',
+      'https://farm4.staticflickr.com/3075/3168662394_7d7103de7d_z_d.jpg',
+      'https://farm3.staticflickr.com/2220/1572613671_7311098b76_z_d.jpg',
+      'https://farm7.staticflickr.com/6089/6115759179_86316c08ff_z_d.jpg',
+      'https://farm2.staticflickr.com/1090/4595137268_0e3f2b9aa7_z_d.jpg',
+      'https://farm4.staticflickr.com/3224/3081748027_0ee3d59fea_z_d.jpg',
+      'https://farm8.staticflickr.com/7377/9359257263_81b080a039_z_d.jpg',
+      'https://farm9.staticflickr.com/8295/8007075227_dc958c1fe6_z_d.jpg',
+    ],
+  ],
+  true,
+)
+
+const classifyImage1 = createNode(
+  '13',
   'Classify Image',
   {
     x: 1350,
-    y: 1350,
+    y: 450,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
   OperationName.ClassifyImage,
@@ -148,7 +200,10 @@ export const initialNodes: ImageFlowNode[] = [
   inversion1,
   composite,
   picsumSource1,
+  loadFromUrl,
   classifyImage,
+  loadOneAtRandomFromUrls,
+  classifyImage1,
 ]
 
 export const initialEdges: ImageFlowEdge[] = [
@@ -193,8 +248,13 @@ export const initialEdges: ImageFlowEdge[] = [
     target: composite.id,
   },
   {
-    id: 'e9-10',
-    source: picsumSource1.id,
+    id: 'e10-11',
+    source: loadFromUrl.id,
     target: classifyImage.id,
+  },
+  {
+    id: 'e11-12',
+    source: loadOneAtRandomFromUrls.id,
+    target: classifyImage1.id,
   },
 ]

@@ -100,37 +100,53 @@ export function CompositeOperation(
 
 export function ClassifyImageOperation(images: Image[]): OperationReturnType {
   return SingleImageOperation((image) => {
+    console.debug(image)
     return new Promise((resolve, reject) => {
-      inferenceSqueezeNet(image).then((result) => {
-        console.debug(result)
+      inferenceSqueezeNet(image).then((predictionResult) => {
+        console.debug(predictionResult.prediction.map((p) => p.name))
         return new Jimp(
           thumbnailWidth,
           thumbnailHeight,
-          0xffffff,
-          (err, image) => {
+          '#ffffff',
+          async (err, image) => {
             // TODO error handling
             // TODO fix callback hell
             if (err) reject(err)
 
             // TODO fix font loading - read from .env
             // also use webpack module to rewrite the path in the Inter.fnt file using a param from .env
-            return Jimp.loadFont(
+            const font = await Jimp.loadFont(
               'https://next-dev.nikola-petrovic.com/Inter.fnt',
-            ).then((font) => {
-              resolve(
-                image.print(
-                  font,
-                  0,
-                  thumbnailHeight / 2,
-                  result.prediction[0].name,
-                ),
-              )
-            })
+            )
+            resolve(
+              image.print(
+                font,
+                20,
+                thumbnailHeight / 2,
+                predictionResult.prediction[0].name,
+              ),
+            )
           },
         )
       })
     })
   }, images)
+}
+
+export function LoadOneAtRandomFromUrlsOperation(
+  imageUrls: string[],
+  images: Image[],
+): OperationReturnType {
+  const imageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)]
+  console.log(imageUrl)
+  return SingleImageOperation(() => Jimp.read(imageUrl), images)
+}
+
+export function LoadFromUrlOperation(
+  url: string,
+  images: Image[],
+): OperationReturnType {
+  return SingleImageOperation(() => Jimp.read(url), images)
 }
 
 const moreThanOneArgument = (images: Image[]) => {
@@ -169,6 +185,8 @@ export enum OperationName {
   Brightness = 'brightness',
   Composite = 'composite',
   ClassifyImage = 'classifyImage',
+  LoadFromUrl = 'loadFromUrl',
+  LoadOneAtRandomFromUrls = 'loadOneAtRandomFromUrls',
 }
 
 export const OperationMap = {
@@ -181,6 +199,8 @@ export const OperationMap = {
   [OperationName.Brightness]: BrightnessOperation,
   [OperationName.Composite]: CompositeOperation,
   [OperationName.ClassifyImage]: ClassifyImageOperation,
+  [OperationName.LoadFromUrl]: LoadFromUrlOperation,
+  [OperationName.LoadOneAtRandomFromUrls]: LoadOneAtRandomFromUrlsOperation,
 }
 
 export function OperationConversion(
