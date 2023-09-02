@@ -98,6 +98,8 @@ export function CompositeOperation(
   )
 }
 
+const JimpFontUrl = process.env.NEXT_PUBLIC_JIMP_FONT_URL
+
 export function ClassifyImageOperation(images: Image[]): OperationReturnType {
   return SingleImageOperation((image) => {
     console.debug(image)
@@ -115,9 +117,11 @@ export function ClassifyImageOperation(images: Image[]): OperationReturnType {
 
             // TODO fix font loading - read from .env
             // also use webpack module to rewrite the path in the Inter.fnt file using a param from .env
-            const font = await Jimp.loadFont(
-              'https://next-dev.nikola-petrovic.com/Inter.fnt',
-            )
+            if (!JimpFontUrl || JimpFontUrl.length === 0) {
+              reject('NEXT_PUBLIC_JIMP_FONT_URL not set')
+              return
+            }
+            const font = await Jimp.loadFont(JimpFontUrl)
             resolve(
               image.print(
                 font,
