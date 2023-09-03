@@ -5,6 +5,7 @@ import { getDescendants } from '@/services/nodeOps'
 
 export function useOnNodeDeleteImage(
   setNodes: Dispatch<SetStateAction<ImageFlowNode[]>>,
+  setEdges: Dispatch<SetStateAction<ImageFlowEdge[]>>,
   getEdges: () => ImageFlowEdge[],
   nodeId: string,
 ) {
@@ -32,9 +33,19 @@ export function useOnNodeDeleteImage(
         () => undefined,
       )
 
+      // TODO edges targeting the deleted node should be removed
+      // TODO edges originating from the deleted node should be removed
+
+      setEdges((prevEdges) => {
+        const updatedEdges = prevEdges.filter(
+          (e) => e.source !== nodeId && e.target !== nodeId,
+        )
+        return updatedEdges
+      })
+
       return updatedNodes
     })
-  }, [setNodes, getEdges, nodeId])
+  }, [setNodes, getEdges, nodeId, setEdges])
 }
 
 export function mapNodeAndUpdateDescendants(

@@ -77,19 +77,19 @@ export function BrightnessOperation(
   )
 }
 
-// TODO allow the blend mode to be specified through a parameter
 export function CompositeOperation(
   opacityDestination: number,
   opacitySource: number,
   positionX: number,
   positionY: number,
+  blendMode: string, // TODO document the allowed values for this parameter
   images: Image[],
 ): OperationReturnType {
   return DoubleImageOperation(
     (image1, image2) =>
       Promise.resolve(
         image1.composite(image2, positionX, positionY, {
-          mode: Jimp.BLEND_DESTINATION_OVER,
+          mode: blendMode,
           opacitySource,
           opacityDest: opacityDestination,
         }),
@@ -207,6 +207,36 @@ export const OperationMap = {
   [OperationName.LoadOneAtRandomFromUrls]: LoadOneAtRandomFromUrlsOperation,
 }
 
+// TODO use this map where appropriate
+export const OperationDefaultArgsMap = {
+  [OperationName.PicsumSource]: [],
+  [OperationName.Gaussian]: [5],
+  [OperationName.Invert]: [],
+  [OperationName.Blur]: [5],
+  [OperationName.Grayscale]: [],
+  [OperationName.Sepia]: [],
+  [OperationName.Brightness]: [0.5],
+  [OperationName.Composite]: [0.5, 1, 0, 0, Jimp.BLEND_DESTINATION_OVER],
+  [OperationName.ClassifyImage]: [],
+  [OperationName.LoadFromUrl]: [
+    'https://farm4.staticflickr.com/3075/3168662394_7d7103de7d_z_d.jpg',
+  ],
+  [OperationName.LoadOneAtRandomFromUrls]: [
+    [
+      'https://i.imgur.com/CzXTtJV.jpg',
+      'https://i.imgur.com/OB0y6MR.jpg',
+      'https://farm2.staticflickr.com/1533/26541536141_41abe98db3_z_d.jpg',
+      'https://farm4.staticflickr.com/3075/3168662394_7d7103de7d_z_d.jpg',
+      'https://farm3.staticflickr.com/2220/1572613671_7311098b76_z_d.jpg',
+      'https://farm7.staticflickr.com/6089/6115759179_86316c08ff_z_d.jpg',
+      'https://farm2.staticflickr.com/1090/4595137268_0e3f2b9aa7_z_d.jpg',
+      'https://farm4.staticflickr.com/3224/3081748027_0ee3d59fea_z_d.jpg',
+      'https://farm8.staticflickr.com/7377/9359257263_81b080a039_z_d.jpg',
+      'https://farm9.staticflickr.com/8295/8007075227_dc958c1fe6_z_d.jpg',
+    ],
+  ],
+}
+
 export function OperationConversion(
   operationName: OperationName,
   operationArgs?: ImageFunctionParams,
@@ -214,12 +244,12 @@ export function OperationConversion(
   console.group(operationName)
   console.debug('args', operationArgs)
   const arglessOperation = OperationMap[operationName]
-  console.debug('operation', arglessOperation)
+  console.debug('arglessOperation', arglessOperation)
   console.groupEnd()
 
   const curriedArglessOperation = curry(arglessOperation)
   const operation =
-    ((operationArgs && operationArgs.length) ?? 0) > 0
+    (operationArgs?.length ?? 0) > 0
       ? curry(arglessOperation)(...(operationArgs ?? []))
       : curriedArglessOperation
   return {

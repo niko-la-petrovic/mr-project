@@ -9,10 +9,8 @@ import {
 } from '@/types/domain'
 import ReactFlow, {
   Background,
-  Connection,
   Controls,
   MiniMap,
-  addEdge,
   useEdgesState,
   useNodesState,
 } from 'reactflow'
@@ -31,6 +29,7 @@ import NodeCreationModal from '@/components/menus/nodeCreationModal'
 import { getImageUrlAsync } from '@/services/imageOps'
 import { saveBlobToFile } from '@/services/saveFile'
 import { useImageFlow } from '@/hooks/useImageFlow'
+import useOnConnect from '@/hooks/useOnConnect'
 
 export const font = Inter({ subsets: ['latin'], variable: '--font-inter' })
 
@@ -66,10 +65,7 @@ export default function Home() {
   // render the graph on start once
   useImageFlow(setEdges, setNodes, getMemolessInputNodes)
 
-  const onConnect = useCallback(
-    (params: Connection) => setEdges((e) => addEdge(params, e)),
-    [setEdges],
-  )
+  const onConnect = useOnConnect(nodes, setNodes, setEdges)
 
   return (
     <div className={font.className}>

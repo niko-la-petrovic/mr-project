@@ -5,6 +5,7 @@ import {
   nameof,
 } from '@/types/domain'
 
+import Jimp from 'jimp'
 import { OperationName } from '@/services/imageOps'
 import { createNode } from '@/services/nodeOps'
 
@@ -108,7 +109,7 @@ const composite = createNode(
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
   OperationName.Composite,
-  [0.5, 1, 0, 0],
+  [0.5, 1, 0, 0, Jimp.BLEND_DESTINATION_OVER],
   true,
 )
 

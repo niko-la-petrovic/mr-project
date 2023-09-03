@@ -20,7 +20,7 @@ import { useOnNodeDeleteImage } from '@/hooks/useOnDeleteImage'
 // TODO make into container component
 
 export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
-  const { setNodes, getEdges, getNode } = useReactFlow<
+  const { setNodes, getEdges, getNode, setEdges } = useReactFlow<
     ImageFlowData,
     ImageFlowEdgeData
   >()
@@ -46,7 +46,7 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
     downloadNodeImage(image, id)
   }, [id, image])
 
-  const onDeleteImage = useOnNodeDeleteImage(setNodes, getEdges, id)
+  const onDeleteImage = useOnNodeDeleteImage(setNodes, setEdges, getEdges, id)
 
   const onArgsChanged = useOnNodeArgsChanged(setNodes, getEdges, node)
 
@@ -86,16 +86,13 @@ export function CustomImageFlowNode({ id, data }: ImageFlowNodeProps) {
           {memo && memo.thumbnailDigest && (
             <>
               <span>{memo.thumbnailDigest}</span>
-              <IconButton>
-                <AiOutlineDownload
-                  className="text-lg"
-                  onClick={onDownloadImage}
-                />
+              <IconButton onClick={onDownloadImage}>
+                <AiOutlineDownload className="text-lg" />
               </IconButton>
             </>
           )}
-          <IconButton>
-            <AiFillDelete className="text-lg" onClick={onDeleteImage} />
+          <IconButton onClick={onDeleteImage}>
+            <AiFillDelete className="text-lg" />
           </IconButton>
         </div>
       </div>
