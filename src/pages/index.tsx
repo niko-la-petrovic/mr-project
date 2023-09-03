@@ -46,8 +46,8 @@ export default function Home() {
     useEdgesState<ImageFlowEdgeData>(initialEdges)
 
   const nodeCreationModalProvider = useNodeCreationModal()
-  // TODO use onnx runtime
 
+  // TODO refactor
   const downloadOutputImages = useCallback(() => {
     getOutputNodes(edges, nodes).forEach((n) => {
       n?.data?.content?.memo?.image &&
@@ -96,7 +96,7 @@ export default function Home() {
             </div>
           </div>
         </div>
-        <NodeCreationModal />
+        <NodeCreationModal setNodes={setNodes} />
       </NodeCreationModalProvider>
     </div>
   )

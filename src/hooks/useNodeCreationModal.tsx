@@ -27,6 +27,7 @@ export default function useNodeCreationModal() {
         type: NodeCreationModalActionType.SetNodeLabel,
         nodeLabel,
       }),
+    clear: () => dispatch({ type: NodeCreationModalActionType.Clear }),
   }
 }
 
@@ -43,6 +44,7 @@ export enum NodeCreationModalActionType {
   SelectOperation = 'selectOperation',
   SelectOperationArgs = 'selectOperationArgs',
   SetNodeLabel = 'setNodeLabel',
+  Clear = 'clear',
 }
 
 export type NodeCreationAction =
@@ -63,6 +65,9 @@ export type NodeCreationAction =
   | {
       type: NodeCreationModalActionType.SetNodeLabel
       nodeLabel: string
+    }
+  | {
+      type: NodeCreationModalActionType.Clear
     }
 
 const initialState: NodeCreationModalState = {
@@ -102,6 +107,10 @@ export function NodeCreationModalReducer(
         ...state,
         nodeLabel: action.nodeLabel,
       }
+    case NodeCreationModalActionType.Clear:
+      return {
+        ...initialState,
+      }
     default:
       throw new Error('Invalid action type')
   }
@@ -120,6 +129,7 @@ export const NodeCreationModalContext =
     selectOperation: noop,
     selectOperationArgs: noop,
     setNodeLabel: noop,
+    clear: noop,
   })
 
 export const NodeCreationModalProvider = NodeCreationModalContext.Provider
