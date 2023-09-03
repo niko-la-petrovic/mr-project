@@ -21,15 +21,15 @@ const picsumSource = createNode(
   true,
 )
 
-const gaussianBlur = createNode(
+const blur = createNode(
   '2',
-  'Gaussian Blur',
+  'Blur',
   {
     x: 0,
     y: 450,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
-  OperationName.Gaussian,
+  OperationName.Blur,
   [3],
 )
 
@@ -192,7 +192,7 @@ const classifyImage1 = createNode(
 
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
-  gaussianBlur,
+  blur,
   invert,
   grayscale,
   sepia,
@@ -210,11 +210,11 @@ export const initialEdges: ImageFlowEdge[] = [
   {
     id: 'e1-2',
     source: picsumSource.id,
-    target: gaussianBlur.id,
+    target: blur.id,
   },
   {
     id: 'e2-3',
-    source: gaussianBlur.id,
+    source: blur.id,
     target: invert.id,
   },
   {

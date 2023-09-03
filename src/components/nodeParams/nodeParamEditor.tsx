@@ -14,6 +14,7 @@ export default function NodeParamEditor({
   value,
 }: NodeParamEditorProps) {
   switch (operationName) {
+    case OperationName.Blur:
     case OperationName.Gaussian: {
       const gaussianValue = value[0]
       return (
@@ -31,7 +32,7 @@ export default function NodeParamEditor({
                 onValueChange && onValueChange([inputValue])
             }}
             value={value[0] as number}
-            max={10}
+            max={20}
           />
         </div>
       )
