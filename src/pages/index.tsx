@@ -14,9 +14,7 @@ import ReactFlow, {
   useEdgesState,
   useNodesState,
 } from 'reactflow'
-import { getMemolessInputNodes, getOutputNodes } from '@/services/nodeOps'
 import { initialEdges, initialNodes } from '@/data/mock/imageFlow'
-import { useCallback, useMemo } from 'react'
 import useNodeCreationModal, {
   NodeCreationModalProvider,
 } from '@/hooks/useNodeCreationModal'
@@ -26,9 +24,10 @@ import { CustomImageFlowNode } from '@/components/graph/customImageFlowNode'
 import FlowToolbar from '@/components/menus/flowToolbar'
 import { Inter } from 'next/font/google'
 import NodeCreationModal from '@/components/menus/nodeCreationModal'
-import { getImageUrlAsync } from '@/services/imageOps'
-import { saveBlobToFile } from '@/services/saveFile'
+import { getMemolessInputNodes } from '@/services/nodeOps'
+import useDownloadOutputImages from '@/hooks/useDownloadOutputImages'
 import { useImageFlow } from '@/hooks/useImageFlow'
+import { useMemo } from 'react'
 import useOnConnect from '@/hooks/useOnConnect'
 
 export const font = Inter({ subsets: ['latin'], variable: '--font-inter' })
@@ -46,19 +45,7 @@ export default function Home() {
 
   const nodeCreationModalProvider = useNodeCreationModal()
 
-  // TODO refactor
-  const downloadOutputImages = useCallback(() => {
-    getOutputNodes(edges, nodes).forEach((n) => {
-      n?.data?.content?.memo?.image &&
-        getImageUrlAsync(n.data.content.memo.image).then((url) =>
-          fetch(url)
-            .then((response) => response.blob())
-            .then((blob) => {
-              saveBlobToFile([blob], 'image/png', `${n.id}.png`)
-            }),
-        )
-    })
-  }, [edges, nodes])
+  const downloadOutputImages = useDownloadOutputImages(edges, nodes)
 
   // TODO add button to restart flow from the input nodes
 
