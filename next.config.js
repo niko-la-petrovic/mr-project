@@ -11,6 +11,12 @@ const nextConfig = {
   // TODO Remove this bit of configuration
   // Added only to support JIMP 0.16.13 - this package should be updated and this error handled
   webpack: (config, { isServer }) => {
+    // make shaders available for module import
+    config.module.rules.push({
+      test: /\.wgsl$/i,
+      type: 'asset/source',
+    })
+
     // TODO check if removable or if required
     config.plugins.push(
       new NodePolyfillPlugin(),
