@@ -1,5 +1,8 @@
 import {
   BindGroupDescriptorGenerator,
+  BindGroupInitializer,
+  BindResourceUpdate,
+  BufferGenerator,
   Image,
   ImageFlowEdge,
   ImageFunctionParams,
@@ -165,10 +168,16 @@ export function createWebGPUNode(
     webGPUOperationName,
     pipelineDescriptor,
     bindGroupDescriptor,
+    bindGroupInitializer,
+    bindResourcesPreUpdate,
+    bufferGenerator,
   }: {
     webGPUOperationName: WebGPUOperationName
     pipelineDescriptor: PipelineDescriptorGenerator
     bindGroupDescriptor?: BindGroupDescriptorGenerator | undefined
+    bindGroupInitializer?: BindGroupInitializer
+    bindResourcesPreUpdate?: BindResourceUpdate
+    bufferGenerator?: BufferGenerator
   },
   id: string,
   label: string,
@@ -198,6 +207,9 @@ export function createWebGPUNode(
           operation: {
             pipelineDescriptorGenerator: pipelineDescriptor, // TODO use the operation conversion function to obtain the pipeline descriptor
             bindGroupDescriptorGenerator: bindGroupDescriptor,
+            bindGroupInitializer,
+            bindResourcesPreUpdate,
+            bufferGenerator,
           },
         },
       },

@@ -1,4 +1,5 @@
 import {
+  BufferMap,
   ImageFlowEdge,
   ImageFlowNode,
   ImageFlowNodeTypes,
@@ -265,16 +266,61 @@ const colorAnimatedWebGPUTriangle = createWebGPUNode(
         },
       }
     },
-    bindGroupDescriptor: (pipeline: GPURenderPipeline) => {
-      return {
-        layout: pipeline.getBindGroupLayout(0),
-        entries: [
-          {
-            binding: 0,
-            resource: {},
-          } as GPUBindGroupEntry,
+    bufferGenerator: (device) => {
+      const group0Map = new Map([
+        [
+          0,
+          device.createBuffer({
+            size: 4,
+            usage: GPUBufferUsage.UNIFORM | GPUBufferUsage.COPY_DST,
+          }),
         ],
-      }
+      ])
+      return new Map([[0, group0Map]])
+    },
+    bindResourcesPreUpdate: ({ device, bufferMap, now }) => {
+      if (!bufferMap) throw new Error('BufferMap is undefined')
+
+      const group0 = bufferMap.get(0)
+      if (!group0) throw new Error('group0 is undefined')
+
+      const buffer0 = group0.get(0)
+      if (!buffer0) throw new Error('buffer0 is undefined')
+
+      device.queue.writeBuffer(buffer0, 0, new Uint32Array([now]))
+    },
+    bindGroupInitializer: (device, bufferMap, descriptorMap) => {
+      const buffer0 = descriptorMap.get(0)?.get(0)
+      if (!buffer0) throw new Error('buffer0 is undefined')
+
+      const group0Map: Map<number, GPUBindGroup> = new Map([
+        [0, device.createBindGroup(buffer0)],
+      ])
+      return new Map([[0, group0Map]])
+    },
+    bindGroupDescriptor: (
+      pipeline: GPURenderPipeline,
+      bufferMap: BufferMap,
+    ) => {
+      const buffer = bufferMap.get(0)?.get(0)
+      if (!buffer) throw new Error('buffer is undefined')
+      const group0Map: Map<number, GPUBindGroupDescriptor> = new Map([
+        [
+          0,
+          {
+            layout: pipeline.getBindGroupLayout(0),
+            entries: [
+              {
+                binding: 0,
+                resource: {
+                  buffer: buffer,
+                },
+              } as GPUBindGroupEntry,
+            ],
+          } as GPUBindGroupDescriptor,
+        ],
+      ])
+      return new Map([[0, group0Map]])
     },
   },
   '15',

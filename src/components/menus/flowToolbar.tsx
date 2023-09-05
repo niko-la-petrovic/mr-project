@@ -1,9 +1,4 @@
-import {
-  AiOutlineDelete,
-  AiOutlineDownload,
-  AiOutlinePlaySquare,
-  AiOutlinePlusSquare,
-} from 'react-icons/ai'
+import { AiOutlineDownload, AiOutlinePlusSquare } from 'react-icons/ai'
 
 import { IconButton } from '../buttons/iconButton'
 import { NodeCreationModalContext } from '@/hooks/useNodeCreationModal'
@@ -24,12 +19,6 @@ export default function FlowToolbar({
       {/* TODO add shortcut descriptors to each of these */}
       <IconButton tooltip={{ id: 'add', content: 'Add' }} onClick={openModal}>
         <AiOutlinePlusSquare className={toolbarIconClass} />
-      </IconButton>
-      <IconButton tooltip={{ id: 'add', content: 'Remove' }}>
-        <AiOutlineDelete className={toolbarIconClass} />
-      </IconButton>
-      <IconButton tooltip={{ id: 'add', content: 'Run' }}>
-        <AiOutlinePlaySquare className={toolbarIconClass} />
       </IconButton>
       <IconButton
         tooltip={{ id: 'add', content: 'Save' }}
