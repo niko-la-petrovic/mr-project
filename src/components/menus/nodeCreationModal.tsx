@@ -43,7 +43,6 @@ export default function NodeCreationModal({
         if (currentId > acc) return currentId
         return acc
       }, 1)
-      console.log(state.selectedOperationArgs)
       const newNode = createNode(
         (maxId + 1).toString(),
         state.nodeLabel,

@@ -5,11 +5,13 @@ import {
   ImageFunctionParams,
   ImageMemo,
   OperationInputPair,
+  PipelineDescriptorGenerator,
 } from '@/types/domain'
 import { OperationConversion, OperationName } from './imageOps'
 
 import { ImageFlowNode } from '@/types/domain'
 import Jimp from 'jimp'
+import { WebGPUOperationName } from './webGPUOps'
 
 export const deepNodeTransformById = (
   nodes: ImageFlowNode[],
@@ -154,6 +156,43 @@ export function createNode(
       },
     },
     position,
+  }
+}
+
+export function createWebGPUNode(
+  webGPUOperationName: WebGPUOperationName,
+  pipelineDescriptor: PipelineDescriptorGenerator,
+  id: string,
+  label: string,
+  position: XYPosition,
+  type?: string,
+  operationName?: OperationName,
+  operationArgs?: ImageFunctionParams,
+  showPreview?: boolean,
+): ImageFlowNode {
+  const basicNode = createNode(
+    id,
+    label,
+    position,
+    type,
+    operationName,
+    operationArgs,
+    showPreview,
+  )
+  return {
+    ...basicNode,
+    data: {
+      ...basicNode.data,
+      content: {
+        ...basicNode.data.content,
+        webGPUArgs: {
+          operationName: webGPUOperationName,
+          operation: {
+            pipelineDescriptorGenerator: pipelineDescriptor, // TODO use the operation conversion function to obtain the pipeline descriptor
+          },
+        },
+      },
+    },
   }
 }
 

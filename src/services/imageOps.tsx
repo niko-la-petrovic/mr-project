@@ -142,7 +142,7 @@ export function LoadOneAtRandomFromUrlsOperation(
   images: Image[],
 ): OperationReturnType {
   const imageUrl = imageUrls[Math.floor(Math.random() * imageUrls.length)]
-  console.log(imageUrl)
+  console.debug(imageUrl)
   return SingleImageOperation(() => Jimp.read(imageUrl), images)
 }
 
@@ -151,6 +151,25 @@ export function LoadFromUrlOperation(
   images: Image[],
 ): OperationReturnType {
   return SingleImageOperation(() => Jimp.read(url), images)
+}
+
+export function BackgroundFromColorOperation(color: string, images: Image[]) {
+  return SingleImageOperation(
+    () =>
+      new Promise((resolve, reject) => {
+        new Jimp(thumbnailWidth, thumbnailHeight, color, (err, image) => {
+          if (err) reject(err)
+          resolve(image)
+        })
+      }),
+    images,
+  )
+}
+
+export function NoOperation(
+  images: Image[],
+): Promise<OperationReturnType> | OperationReturnType {
+  return SingleImageOperation((image) => Promise.resolve(image), images)
 }
 
 const moreThanOneArgument = (images: Image[]) => {
@@ -191,6 +210,8 @@ export enum OperationName {
   ClassifyImage = 'classifyImage',
   LoadFromUrl = 'loadFromUrl',
   LoadOneAtRandomFromUrls = 'loadOneAtRandomFromUrls',
+  NoOperation = 'noOperation',
+  White = 'white',
 }
 
 export const OperationMap = {
@@ -205,6 +226,8 @@ export const OperationMap = {
   [OperationName.ClassifyImage]: ClassifyImageOperation,
   [OperationName.LoadFromUrl]: LoadFromUrlOperation,
   [OperationName.LoadOneAtRandomFromUrls]: LoadOneAtRandomFromUrlsOperation,
+  [OperationName.NoOperation]: NoOperation,
+  [OperationName.White]: BackgroundFromColorOperation,
 }
 
 // TODO use this map where appropriate
@@ -235,6 +258,8 @@ export const OperationDefaultArgsMap = {
       'https://farm9.staticflickr.com/8295/8007075227_dc958c1fe6_z_d.jpg',
     ],
   ],
+  [OperationName.NoOperation]: [],
+  [OperationName.White]: ['#ffffff'],
 }
 
 export function OperationConversion(

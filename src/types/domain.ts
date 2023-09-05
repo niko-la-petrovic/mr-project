@@ -3,6 +3,7 @@ import { Edge, Node, NodeProps } from 'reactflow'
 import Jimp from 'jimp/*'
 import { OperationName } from '@/services/imageOps'
 import { ReactNode } from 'react'
+import { WebGPUOperationName } from '@/services/webGPUOps'
 
 // TODO create a graph type
 // TODO reduce this to just the types/props we need
@@ -52,6 +53,21 @@ export interface MemoizedImageFunction<TImage = Image, TMemoImage = ImageMemo>
   memo?: TMemoImage | null
   operation?: Operation<TImage>
   operationArgs?: ImageFunctionParams
+  webGPUArgs?: WebGPUArgs
+}
+
+export interface WebGPUArgs {
+  operationName: WebGPUOperationName
+  operation: WebGPUOperation
+}
+
+export type PipelineDescriptorGenerator = (
+  textureFormat: GPUTextureFormat,
+  device: GPUDevice,
+) => GPURenderPipelineDescriptor
+
+export interface WebGPUOperation {
+  pipelineDescriptorGenerator: PipelineDescriptorGenerator
 }
 
 // TODO intersect/union to make content required

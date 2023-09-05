@@ -25,6 +25,6 @@ export function saveBase64ToFile(
   fileName: string,
 ) {
   const data = base64.split(';base64,')
-  console.log(base64, data)
+  console.debug(base64, data)
   saveBlobToFile([atob(data[1])], mimeType, fileName)
 }

@@ -4,10 +4,13 @@ import {
   ImageFlowNodeTypes,
   nameof,
 } from '@/types/domain'
+import { createNode, createWebGPUNode } from '@/services/nodeOps'
 
 import Jimp from 'jimp'
 import { OperationName } from '@/services/imageOps'
-import { createNode } from '@/services/nodeOps'
+import { WebGPUOperationName } from '@/services/webGPUOps'
+import redFragWGSL from '@/shaders/red.frag.wgsl'
+import triangleVertWGSL from '@/shaders/triangle.vert.wgsl'
 
 const picsumSource = createNode(
   '1',
@@ -191,6 +194,45 @@ const classifyImage1 = createNode(
   true,
 )
 
+const webGPUTriangle = createWebGPUNode(
+  WebGPUOperationName.Triangle,
+  (textureFormat, device) => {
+    return {
+      layout: 'auto',
+      vertex: {
+        module: device.createShaderModule({
+          code: triangleVertWGSL,
+        }),
+        entryPoint: 'main',
+      },
+      fragment: {
+        module: device.createShaderModule({
+          code: redFragWGSL,
+        }),
+        entryPoint: 'main',
+        targets: [
+          {
+            format: textureFormat,
+          },
+        ],
+      },
+      primitive: {
+        topology: 'triangle-list',
+      },
+    }
+  },
+  '14',
+  'WebGPU Triangle',
+  {
+    x: -450,
+    y: 0,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.White,
+  ['#ffffff'],
+  true,
+)
+
 export const initialNodes: ImageFlowNode[] = [
   picsumSource,
   blur,
@@ -205,6 +247,7 @@ export const initialNodes: ImageFlowNode[] = [
   classifyImage,
   loadOneAtRandomFromUrls,
   classifyImage1,
+  webGPUTriangle,
 ]
 
 export const initialEdges: ImageFlowEdge[] = [
