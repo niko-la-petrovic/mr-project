@@ -1,5 +1,5 @@
-import { Edge, Node, XYPosition } from 'reactflow'
 import {
+  BindGroupDescriptorGenerator,
   Image,
   ImageFlowEdge,
   ImageFunctionParams,
@@ -7,6 +7,7 @@ import {
   OperationInputPair,
   PipelineDescriptorGenerator,
 } from '@/types/domain'
+import { Edge, Node, XYPosition } from 'reactflow'
 import { OperationConversion, OperationName } from './imageOps'
 
 import { ImageFlowNode } from '@/types/domain'
@@ -160,8 +161,15 @@ export function createNode(
 }
 
 export function createWebGPUNode(
-  webGPUOperationName: WebGPUOperationName,
-  pipelineDescriptor: PipelineDescriptorGenerator,
+  {
+    webGPUOperationName,
+    pipelineDescriptor,
+    bindGroupDescriptor,
+  }: {
+    webGPUOperationName: WebGPUOperationName
+    pipelineDescriptor: PipelineDescriptorGenerator
+    bindGroupDescriptor?: BindGroupDescriptorGenerator | undefined
+  },
   id: string,
   label: string,
   position: XYPosition,
@@ -189,6 +197,7 @@ export function createWebGPUNode(
           operationName: webGPUOperationName,
           operation: {
             pipelineDescriptorGenerator: pipelineDescriptor, // TODO use the operation conversion function to obtain the pipeline descriptor
+            bindGroupDescriptorGenerator: bindGroupDescriptor,
           },
         },
       },

@@ -102,7 +102,6 @@ const JimpFontUrl = process.env.NEXT_PUBLIC_JIMP_FONT_URL
 
 export function ClassifyImageOperation(images: Image[]): OperationReturnType {
   return SingleImageOperation((image) => {
-    console.debug(image)
     return new Promise((resolve, reject) => {
       inferenceSqueezeNet(image).then((predictionResult) => {
         console.debug(predictionResult.prediction.map((p) => p.name))

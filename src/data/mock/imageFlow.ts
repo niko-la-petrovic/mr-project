@@ -10,6 +10,7 @@ import Jimp from 'jimp'
 import { OperationName } from '@/services/imageOps'
 import { WebGPUOperationName } from '@/services/webGPUOps'
 import redFragWGSL from '@/shaders/red.frag.wgsl'
+import redTime1FragWGSL from '@/shaders/red.time1.frag.wgsl'
 import triangleVertWGSL from '@/shaders/triangle.vert.wgsl'
 
 const picsumSource = createNode(
@@ -195,37 +196,92 @@ const classifyImage1 = createNode(
 )
 
 const webGPUTriangle = createWebGPUNode(
-  WebGPUOperationName.Triangle,
-  (textureFormat, device) => {
-    return {
-      layout: 'auto',
-      vertex: {
-        module: device.createShaderModule({
-          code: triangleVertWGSL,
-        }),
-        entryPoint: 'main',
-      },
-      fragment: {
-        module: device.createShaderModule({
-          code: redFragWGSL,
-        }),
-        entryPoint: 'main',
-        targets: [
-          {
-            format: textureFormat,
-          },
-        ],
-      },
-      primitive: {
-        topology: 'triangle-list',
-      },
-    }
+  {
+    webGPUOperationName: WebGPUOperationName.Triangle,
+    pipelineDescriptor: (textureFormat, device) => {
+      return {
+        layout: 'auto',
+        vertex: {
+          module: device.createShaderModule({
+            code: triangleVertWGSL,
+          }),
+          entryPoint: 'main',
+        },
+        fragment: {
+          module: device.createShaderModule({
+            code: redFragWGSL,
+          }),
+          entryPoint: 'main',
+          targets: [
+            {
+              format: textureFormat,
+            },
+          ],
+        },
+        primitive: {
+          topology: 'triangle-list',
+        },
+      }
+    },
   },
+
   '14',
   'WebGPU Triangle',
   {
     x: -450,
     y: 0,
+  },
+  nameof<ImageFlowNodeTypes>('imageFlowNode'),
+  OperationName.White,
+  ['#ffffff'],
+  true,
+)
+
+const colorAnimatedWebGPUTriangle = createWebGPUNode(
+  {
+    webGPUOperationName: WebGPUOperationName.Triangle,
+    pipelineDescriptor: (textureFormat, device) => {
+      return {
+        layout: 'auto',
+        vertex: {
+          module: device.createShaderModule({
+            code: triangleVertWGSL,
+          }),
+          entryPoint: 'main',
+        },
+        fragment: {
+          module: device.createShaderModule({
+            code: redTime1FragWGSL,
+          }),
+          entryPoint: 'main',
+          targets: [
+            {
+              format: textureFormat,
+            },
+          ],
+        },
+        primitive: {
+          topology: 'triangle-list',
+        },
+      }
+    },
+    bindGroupDescriptor: (pipeline: GPURenderPipeline) => {
+      return {
+        layout: pipeline.getBindGroupLayout(0),
+        entries: [
+          {
+            binding: 0,
+            resource: {},
+          } as GPUBindGroupEntry,
+        ],
+      }
+    },
+  },
+  '15',
+  'Animated Color WebGPU Triangle',
+  {
+    x: -450,
+    y: 450,
   },
   nameof<ImageFlowNodeTypes>('imageFlowNode'),
   OperationName.White,
@@ -248,6 +304,7 @@ export const initialNodes: ImageFlowNode[] = [
   loadOneAtRandomFromUrls,
   classifyImage1,
   webGPUTriangle,
+  colorAnimatedWebGPUTriangle,
 ]
 
 export const initialEdges: ImageFlowEdge[] = [

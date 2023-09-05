@@ -66,8 +66,26 @@ export type PipelineDescriptorGenerator = (
   device: GPUDevice,
 ) => GPURenderPipelineDescriptor
 
+export type BindGroupDescriptorGenerator = (
+  pipeline: GPURenderPipeline,
+  frame: number,
+) => GPUBindGroupDescriptor
+
+export type BindGroupBinder = (encoder: GPURenderPassEncoder) => void
+
+export type BufferGenerator = (
+  device: GPUDevice,
+) => Map<number, Map<number, GPUBuffer>>
+
+export type BindingGroupEntryMap<T> = Map<number, Map<number, T>>
+
 export interface WebGPUOperation {
   pipelineDescriptorGenerator: PipelineDescriptorGenerator
+  bindGroupDescriptorGenerator?: BindGroupDescriptorGenerator
+  bindGroupBinder?: BindGroupBinder
+  bindGroupMap?: BindingGroupEntryMap<GPUBindGroup>
+  bufferGenerator?: BufferGenerator
+  bufferMap?: BindingGroupEntryMap<GPUBuffer>
 }
 
 // TODO intersect/union to make content required

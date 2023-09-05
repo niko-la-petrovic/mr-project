@@ -8,6 +8,7 @@ export default function useWebGPU(
 ) {
   useEffect(() => {
     if (!webGPUArgs) return
+    const operation = webGPUArgs.operation
 
     const gpuTest = async () => {
       const canvas = canvasRef.current
@@ -27,10 +28,10 @@ export default function useWebGPU(
 
       console.debug('device', device)
 
-      const context = canvas.getContext('webgpu')
-      if (!context) throw new Error('no WebGPU context')
+      const canvasContext = canvas.getContext('webgpu')
+      if (!canvasContext) throw new Error('no WebGPU context')
 
-      console.debug('context', context)
+      console.debug('context', canvasContext)
 
       const devicePixelRatio = window.devicePixelRatio || 1
       canvas.width = Math.floor(canvas.clientWidth * devicePixelRatio)
@@ -42,23 +43,21 @@ export default function useWebGPU(
 
       console.debug('presentationFormat', presentationFormat)
 
-      context.configure({
+      canvasContext.configure({
         device,
         format: presentationFormat,
         alphaMode: 'premultiplied',
       })
 
       const pipeline = device.createRenderPipeline(
-        webGPUArgs.operation.pipelineDescriptorGenerator(
-          presentationFormat,
-          device,
-        ),
+        operation.pipelineDescriptorGenerator(presentationFormat, device),
       )
 
+      // let now = performance.now()
       function frame() {
-        if (!context) throw new Error('no WebGPU context')
+        if (!canvasContext) throw new Error('no WebGPU canvas context')
 
-        const textureView = context.getCurrentTexture().createView()
+        const textureView = canvasContext.getCurrentTexture().createView()
 
         const colorAttachment: GPURenderPassColorAttachment = {
           view: textureView,
@@ -74,6 +73,8 @@ export default function useWebGPU(
         const commandEncoder = device.createCommandEncoder()
         const passEncoder = commandEncoder.beginRenderPass(renderPassDescriptor)
         passEncoder.setPipeline(pipeline)
+        // TODO set bind groups
+
         passEncoder.draw(3, 1, 0, 0)
         passEncoder.end()
 

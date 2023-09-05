@@ -25,7 +25,7 @@ export async function runSequeezeNetModel(
     { executionProviders: ['webgl'], graphOptimizationLevel: 'all' },
   )
 
-  console.debug('Inference session created')
+  console.debug('Creating SqueezeNet inference session')
   // Run inference and get results.
   const [results, inferenceTime] = await runInference(session, imageTensor)
   return [results, inferenceTime]
