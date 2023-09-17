@@ -1,5 +1,6 @@
-import Head from 'next/head'
 import * as Sentry from '@sentry/nextjs'
+
+import Head from 'next/head'
 
 export default function Home() {
   return (
@@ -70,7 +71,7 @@ export default function Home() {
 
         <p>
           Next, look for the error on the{' '}
-          <a href="http://192.168.1.102:9000/organizations/sentry/issues/?project=2">
+          <a href="https://sentry.nikola-petrovic.com/organizations/sentry/issues/?project=2">
             Issues Page
           </a>
           .
